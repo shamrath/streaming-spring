@@ -1,0 +1,17 @@
+This is readme file of Streaming Spring Project.
+
+
+### Kafka
+1. First start dirty zookeeper comes with kafka or download and start zookeeper.
+    <KAFKA_HOME>/bin/zookeeper-server-start.sh config/zookeeper.properties  ==> will start zookeeper comes with kafka.
+2. Start Kafka broker, following command start kafka server on port 9092 if you use default port,
+ and it bind to all network interfaces unless you configure host.
+    <KAFKA_HOME>/bin/kafka-server-start.sh config/server.properties
+
+3. Run Kafka streaming producer by invoking startKafkaProducer method in org.streaming.spring.Bootstrap class.
+
+4. Run following command to start console consumer to test kafka twitter stream producer code.
+    <KAFKA_HOME>/bin/kafka-console-consumer.sh --zookeeper localhost:2181 --from-beginning --topic test
+
+5. You can plug different data stream source by returning different DataStream implementations from
+ org.streaming.spring.kafka.KafkaStreamProducer.getTwitterDataStream method.

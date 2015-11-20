@@ -8,7 +8,8 @@ This is readme file of Streaming Spring Project.
  and it bind to all network interfaces unless you configure host.
     <KAFKA_HOME>/bin/kafka-server-start.sh config/server.properties
 
-3. Run Kafka streaming producer by invoking startKafkaProducer method in org.streaming.spring.Bootstrap class.
+3. Run Kafka streaming producer by invoking startKafkaProducer and startKafkaConsumer methods
+ in org.streaming.spring.Bootstrap class.
 
 4. Run following command to start console consumer to test kafka twitter stream producer code.
     <KAFKA_HOME>/bin/kafka-console-consumer.sh --zookeeper localhost:2181 --from-beginning --topic test

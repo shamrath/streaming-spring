@@ -17,3 +17,9 @@ This is readme file of Streaming Spring Project.
 5. org.streaming.spring.storm.TPBuilder build different topology, eg: wordCountTopology
 
 6. org.streaming.spring.storm.SpoutProvider provide different spout implemenations, eg: kafka Spout , rabbitmq spout.
+
+
+
+Additional details,
+Storm-kafka spout = https://github.com/apache/storm/tree/master/external/storm-kafka
+Storm-rabbitmq spout = https://github.com/ppat/storm-rabbitmq

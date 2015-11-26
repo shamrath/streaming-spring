@@ -60,6 +60,11 @@
             <artifactId>storm-kafka</artifactId>
             <version>0.10.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.latent</groupId>
+            <artifactId>storm-rabbitmq</artifactId>
+            <version>0.6.1</version>
+        </dependency>
     </dependencies>
 
 </project>

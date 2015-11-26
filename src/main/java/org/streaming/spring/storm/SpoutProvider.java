@@ -1,7 +1,10 @@
 package org.streaming.spring.storm;
 
+import backtype.storm.spout.Scheme;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.IRichSpout;
+import io.latent.storm.rabbitmq.RabbitMQBolt;
+import io.latent.storm.rabbitmq.RabbitMQSpout;
 import storm.kafka.*;
 
 import java.util.UUID;
@@ -20,5 +23,12 @@ public class SpoutProvider {
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
         KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
         return kafkaSpout;
+    }
+
+    public static IRichSpout getRabbitMQSpout() {
+        // TODO - add custom scheme instead of using scheme comes with kafka-storm
+        Scheme scheme = new StringScheme();
+
+        return new RabbitMQSpout(scheme);
     }
 }

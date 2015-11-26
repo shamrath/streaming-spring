@@ -20,6 +20,13 @@
  */
 package org.streaming.spring;
 
+import org.streaming.spring.core.DataStream;
+import org.streaming.spring.core.Producer;
+import org.streaming.spring.source.TwitterDataStream;
+import twitter4j.StallWarning;
+import twitter4j.Status;
+import twitter4j.StatusDeletionNotice;
+import twitter4j.StatusListener;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -35,5 +42,54 @@ public class StreamingUtils {
         return config;
     }
 
+    public static DataStream getTwitterDataStream(String topic , String key , Producer producer) {
+        return new TwitterDataStream(new TwitterStreamListener(topic, key , producer));
+    }
 
+    private static class TwitterStreamListener implements StatusListener {
+
+
+        private Producer _producer;
+        private String _topic;
+        private String _key;
+
+
+        public TwitterStreamListener(String _topic, String _key) {
+            this._topic = _topic;
+            this._key = _key;
+        }
+
+        public TwitterStreamListener(String _topic, String _key, Producer producer) {
+            this._producer = producer;
+            this._topic = _topic;
+            this._key = _key;
+        }
+
+        public void onStatus(Status status) {
+            if (status.getLang().equals("en")) {
+                _producer.send(_topic, _key,status.getLang() + " : " + status.getText());
+            }
+        }
+
+        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
+            _producer.send(_topic, _key, String.valueOf(statusDeletionNotice.getStatusId()));
+
+        }
+
+        public void onTrackLimitationNotice(int i) {
+
+        }
+
+        public void onScrubGeo(long l, long l1) {
+
+        }
+
+        public void onStallWarning(StallWarning stallWarning) {
+
+        }
+
+        public void onException(Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }

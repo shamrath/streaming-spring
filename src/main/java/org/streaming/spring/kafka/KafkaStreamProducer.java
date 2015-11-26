@@ -2,6 +2,7 @@ package org.streaming.spring.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.streaming.spring.StreamingUtils;
 import org.streaming.spring.core.DataStream;
 import org.streaming.spring.core.StreamProducer;
 import org.streaming.spring.source.TwitterDataStream;
@@ -34,12 +35,13 @@ public class KafkaStreamProducer implements StreamProducer{
         props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         kafkaProducer = new KafkaProducer<String, String>(props);
-        dataStream = getTwitterDataStream();
+        dataStream = StreamingUtils.getTwitterDataStream("test", "testKey", (topic, key, msg) -> {
+            ProducerRecord<String, String> pRecord = new ProducerRecord<String, String>(topic, key, msg);
+            kafkaProducer.send(pRecord);
+
+        });
     }
 
-    private DataStream getTwitterDataStream() {
-        return new TwitterDataStream(new TwitterStreamListener("test", "testKey"));
-    }
 
     public void start() throws Exception {
         dataStream.open();
@@ -49,44 +51,5 @@ public class KafkaStreamProducer implements StreamProducer{
         dataStream.stop();
     }
 
-    private class TwitterStreamListener implements StatusListener {
 
-
-        private ProducerRecord<String, String> pRecord;
-        private String _topic;
-        private String _key;
-
-        public TwitterStreamListener(String _topic, String _key) {
-            this._topic = _topic;
-            this._key = _key;
-        }
-
-        public void onStatus(Status status) {
-            if (status.getLang().equals("en")) {
-                pRecord = new ProducerRecord<String, String>(_topic, _key, status.getLang() + " : " + status.getText());
-                kafkaProducer.send(pRecord);
-            }
-        }
-
-        public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            pRecord = new ProducerRecord<String, String>(_topic, _key, String.valueOf(statusDeletionNotice.getStatusId()));
-            kafkaProducer.send(pRecord);
-        }
-
-        public void onTrackLimitationNotice(int i) {
-
-        }
-
-        public void onScrubGeo(long l, long l1) {
-
-        }
-
-        public void onStallWarning(StallWarning stallWarning) {
-
-        }
-
-        public void onException(Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
 }

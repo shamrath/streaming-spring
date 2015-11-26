@@ -1,4 +1,4 @@
-package org.streaming.spring.storm;
+package org.streaming.spring.storm.bolts;
 
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -26,7 +26,7 @@ public class WordCountBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         String val = tuple.getString(0);
-        System.out.println(val);
+        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + val);
 
         _collector.emit(tuple, new Values(val));
         _collector.ack(tuple);

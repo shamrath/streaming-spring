@@ -17,7 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Created by syodage on 11/12/15.
+ * we don't need to write consumer as there are kafka spout already available.
  */
+
+@Deprecated
 public class KafkaStreamConsumer implements StreamConsumer {
 
     private final ConsumerConnector consumerConnector;

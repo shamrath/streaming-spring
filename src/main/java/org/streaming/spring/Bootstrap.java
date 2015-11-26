@@ -7,7 +7,7 @@ import backtype.storm.utils.Utils;
 import org.streaming.spring.core.StreamConsumer;
 import org.streaming.spring.kafka.KafkaStreamConsumer;
 import org.streaming.spring.kafka.KafkaStreamProducer;
-import org.streaming.spring.spark.TPBuilder;
+import org.streaming.spring.storm.TPBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +31,7 @@ public class Bootstrap {
 
     private static void startWordCountTopology() {
         TPBuilder builder = new TPBuilder();
-        StormTopology stormTopology = builder.wordCountTopology(new Bootstrap().startKafkaConsumer());
+        StormTopology stormTopology = builder.wordCountTopology();
         Config conf = new Config();
         conf.setDebug(true);
         conf.setNumWorkers(2);
@@ -43,27 +43,6 @@ public class Bootstrap {
         cluster.shutdown();
     }
 
-    private StreamConsumer startKafkaConsumer(){
-        try {
-            String zooKeeper = "localhost:2181";
-            String groupId = "group_1";
-            String topic = "test";
-            int threads = 1;
-
-            StreamConsumer kafkaStreamConsumer = new KafkaStreamConsumer(zooKeeper, groupId, topic, threads);
-            kafkaStreamConsumer.start();
-            return kafkaStreamConsumer;
-//            try {
-//                Thread.sleep(10000);
-//            } catch (InterruptedException ie) {
-//
-//            }
-//            kafkaStreamConsumer.stop();
-        } catch (Exception e) {
-            System.out.println("Error while consuming kafka streams");
-            return null;
-        }
-    }
 
     public void startKafkaProducer() {
         try {

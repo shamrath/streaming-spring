@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Created by syodage on 11/26/15.
  */
-public class PersisteBolt extends BaseRichBolt {
+public class PersistBolt extends BaseRichBolt {
 
     private OutputCollector _outputCollector;
     private BufferedWriter bufferedWriter;
@@ -24,7 +24,7 @@ public class PersisteBolt extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         _outputCollector = outputCollector;
         try {
-            bufferedWriter = new BufferedWriter(new FileWriter("streaming_put.txt"));
+            bufferedWriter = new BufferedWriter(new FileWriter("streaming_out.txt"));
         } catch (IOException e) {
             e.printStackTrace();
         }

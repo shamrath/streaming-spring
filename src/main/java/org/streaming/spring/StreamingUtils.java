@@ -22,6 +22,7 @@ package org.streaming.spring;
 
 import org.streaming.spring.core.DataStream;
 import org.streaming.spring.core.Producer;
+import org.streaming.spring.source.FileDataStream;
 import org.streaming.spring.source.TwitterDataStream;
 import twitter4j.StallWarning;
 import twitter4j.Status;
@@ -42,8 +43,9 @@ public class StreamingUtils {
         return config;
     }
 
-    public static DataStream getTwitterDataStream(String topic , String key , Producer producer) {
-        return new TwitterDataStream(new TwitterStreamListener(topic, key , producer));
+    public static DataStream getDataStream(String topic , String key , Producer producer) {
+//        return new TwitterDataStream(new TwitterStreamListener(topic, key , producer));
+        return new FileDataStream(topic, key, producer);
     }
 
     private static class TwitterStreamListener implements StatusListener {

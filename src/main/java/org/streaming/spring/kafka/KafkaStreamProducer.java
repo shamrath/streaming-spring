@@ -5,11 +5,6 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.streaming.spring.StreamingUtils;
 import org.streaming.spring.core.DataStream;
 import org.streaming.spring.core.StreamProducer;
-import org.streaming.spring.source.TwitterDataStream;
-import twitter4j.StallWarning;
-import twitter4j.Status;
-import twitter4j.StatusDeletionNotice;
-import twitter4j.StatusListener;
 
 import java.util.Properties;
 
@@ -34,8 +29,8 @@ public class KafkaStreamProducer implements StreamProducer{
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
         props.put("value.deserializer","org.apache.kafka.common.serialization.StringDeserializer");
-        kafkaProducer = new KafkaProducer<String, String>(props);
-        dataStream = StreamingUtils.getTwitterDataStream("test", "testKey", (topic, key, msg) -> {
+        kafkaProducer = new KafkaProducer<>(props);
+        dataStream = StreamingUtils.getDataStream("test", "testKey", (topic, key, msg) -> {
             ProducerRecord<String, String> pRecord = new ProducerRecord<String, String>(topic, key, msg);
             kafkaProducer.send(pRecord);
 

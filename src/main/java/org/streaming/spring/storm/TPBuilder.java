@@ -2,11 +2,6 @@ package org.streaming.spring.storm;
 
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import com.rabbitmq.client.ConnectionFactory;
-import io.latent.storm.rabbitmq.config.ConnectionConfig;
-import io.latent.storm.rabbitmq.config.ConsumerConfig;
-import io.latent.storm.rabbitmq.config.ConsumerConfigBuilder;
-import org.streaming.spring.storm.bolts.PersisteBolt;
 import org.streaming.spring.storm.bolts.WordCountBolt;
 
 /**
@@ -32,7 +27,7 @@ public class TPBuilder {
                 .setMaxSpoutPending(200);*/
 
         topologyBuilder.setBolt("word", new WordCountBolt()).shuffleGrouping("sentence");
-        topologyBuilder.setBolt("writeToFile", new PersisteBolt()).shuffleGrouping("word");
+//        topologyBuilder.setBolt("writeToFile", new PersistBolt()).shuffleGrouping("word");
         return topologyBuilder.createTopology();
 
     }

@@ -6,17 +6,20 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * Created by syodage on 11/20/15.
  */
 public class WordCountBolt extends BaseRichBolt {
     OutputCollector _collector;
-    Map<String, Integer> wordCount = new HashMap<>();
+    Map<String, Integer> wordCountMap = new HashMap<>();
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -26,14 +29,49 @@ public class WordCountBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
         String val = tuple.getString(0);
-        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + val);
-
-        _collector.emit(tuple, new Values(val));
+        String word = null;
+        StringTokenizer stringTokenizer = new StringTokenizer(val," ");
+        while (stringTokenizer.hasMoreTokens()) {
+            word = stringTokenizer.nextToken();
+            Integer count = wordCountMap.get(word);
+            if (count != null) {
+                count++;
+            } else {
+                count = 1;
+            }
+            wordCountMap.put(word, count);
+//            _collector.emit(tuple, new Values(stringTokenizer.nextToken()));
+        }
         _collector.ack(tuple);
+
+    }
+
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        BufferedWriter bufferedWriter = null;
+        try {
+            bufferedWriter = new BufferedWriter(new FileWriter("streaming_out.txt"));
+            for (Map.Entry<String, Integer> stringIntegerEntry : wordCountMap.entrySet()) {
+                bufferedWriter.write(stringIntegerEntry.getKey() + " -> " + stringIntegerEntry.getValue());
+                bufferedWriter.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bufferedWriter != null) {
+                try {
+                    bufferedWriter.flush();
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("words"));
+//        outputFieldsDeclarer.declare(new Fields("words"));
     }
 }

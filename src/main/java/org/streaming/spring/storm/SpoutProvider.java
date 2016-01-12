@@ -21,6 +21,7 @@ public class SpoutProvider {
         BrokerHosts bkHost = new ZkHosts(ZOOKEEPER_HOSTS);
         SpoutConfig spoutConfig = new SpoutConfig(bkHost, TOPIC, "/" + TOPIC, UUID.randomUUID().toString());
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
+        spoutConfig.stateUpdateIntervalMs = 2000;
         KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
         return kafkaSpout;
     }

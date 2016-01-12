@@ -11,22 +11,28 @@ import org.streaming.spring.storm.TPBuilder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * Created by syodage on 11/10/15.
  */
 public class Bootstrap {
     static int count = 0;
+    static int sec_1 = 1000;
+    static int min_1 = 60 * sec_1;
+    static int hour_1 = 60 * min_1;
+
 
     public static void main(String[] args) throws Exception {
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        executorService.submit(() -> new Bootstrap().startKafkaProducer());
-
-        while (count++ < 2) {
-            waitFor(5000);
-        }
-        executorService.shutdown();
+        runKafkaProducer();
         startWordCountTopology();
+    }
+
+    private static void runKafkaProducer() throws InterruptedException, java.util.concurrent.ExecutionException {
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Future<?> kafkaProducerFuture = executorService.submit(() -> new Bootstrap().startKafkaProducer());
+        kafkaProducerFuture.get(); // wait until kafka producer finish it works.
+        executorService.shutdown();
     }
 
     private static void startWordCountTopology() {
@@ -38,7 +44,7 @@ public class Bootstrap {
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("test", conf, stormTopology);
-        Utils.sleep(10000);
+        Utils.sleep(min_1);
         cluster.killTopology("test");
         cluster.shutdown();
     }

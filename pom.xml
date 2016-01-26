@@ -17,6 +17,38 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <!-- Set the target configuration directory to be used in the bin scripts -->
+                    <configurationDirectory>conf</configurationDirectory>
+                    <!-- Copy the contents from "/src/main/config" to the target
+                         configuration directory in the assembled application -->
+                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <!-- Include the target configuration directory in the beginning of
+                         the classpath declaration in the bin scripts -->
+                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+                    <!-- set alternative assemble directory -->
+                    <assembleDirectory>${project.build.directory}/streaming</assembleDirectory>
+                    <!-- Extra JVM arguments that will be included in the bin scripts -->
+                    <extraJvmArguments>-Xms128m</extraJvmArguments>
+                    <!-- Generate bin scripts for windows and unix pr default -->
+                    <platforms>
+                        <platform>unix</platform>
+                    </platforms>
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
+                    <programs>
+                        <program>
+                            <mainClass>org.streaming.spring.Bootstrap</mainClass>
+                            <id>app</id>
+                        </program>
+                    </programs>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

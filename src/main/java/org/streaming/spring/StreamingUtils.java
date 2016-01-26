@@ -48,6 +48,15 @@ public class StreamingUtils {
         return new FileDataStream(topic, key, producer);
     }
 
+
+    public static void waitFor(long waitTime) {
+        try {
+            Thread.sleep(waitTime);
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
     private static class TwitterStreamListener implements StatusListener {
 
 

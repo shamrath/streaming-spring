@@ -24,13 +24,13 @@ public class Bootstrap {
 
 
     public static void main(String[] args) throws Exception {
-        runKafkaProducer();
+//        runKafkaProducer();
         startWordCountTopology();
     }
 
     private static void runKafkaProducer() throws InterruptedException, java.util.concurrent.ExecutionException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
-        Future<?> kafkaProducerFuture = executorService.submit(() -> new Bootstrap().startKafkaProducer());
+        Future<?> kafkaProducerFuture = executorService.submit(() -> startKafkaProducer());
         kafkaProducerFuture.get(); // wait until kafka producer finish it works.
         executorService.shutdown();
     }
@@ -39,7 +39,7 @@ public class Bootstrap {
         TPBuilder builder = new TPBuilder();
         StormTopology stormTopology = builder.wordCountTopology();
         Config conf = new Config();
-        conf.setDebug(true);
+//        conf.setDebug(true);
         conf.setNumWorkers(2);
 
         LocalCluster cluster = new LocalCluster();
@@ -50,32 +50,15 @@ public class Bootstrap {
     }
 
 
-    public void startKafkaProducer() {
+    public static void startKafkaProducer() {
         try {
             KafkaStreamProducer streamKafkaProducer = new KafkaStreamProducer();
             streamKafkaProducer.start();
-            waitFor(30000);
+            StreamingUtils.waitFor(30*sec_1);
             streamKafkaProducer.stop();
         } catch (Exception e) {
             System.out.println("Error while producing stream producer");
         }
     }
 
-    private static void waitFor(long waitTime) {
-        try {
-            Thread.sleep(waitTime);
-        } catch (InterruptedException e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static class Person {
-        public String surname;
-        public int age;
-
-        public Person(String surname, int age) {
-            this.surname = surname;
-            this.age = age;
-        }
-    }
 }

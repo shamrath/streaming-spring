@@ -19,10 +19,12 @@ public class SpoutProvider {
 
     public static IRichSpout getKafkaSpout() {
         BrokerHosts bkHost = new ZkHosts(ZOOKEEPER_HOSTS);
-        SpoutConfig spoutConfig = new SpoutConfig(bkHost, TOPIC, "/" + TOPIC, UUID.randomUUID().toString());
+        SpoutConfig spoutConfig = new SpoutConfig(bkHost, TOPIC, "/" + TOPIC, "client_1");
         spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
         spoutConfig.stateUpdateIntervalMs = 2000;
         KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
+        spoutConfig.ignoreZkOffsets = false; // use zookeeper status and resume, instead of starting over.
+        kafka.api.OffsetRequest.LatestTime();
         return kafkaSpout;
     }
 

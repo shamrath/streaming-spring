@@ -1,9 +1,12 @@
-package org.streaming.perfomance;
+package org.streaming.perfomance.kafka;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.streaming.perfomance.DataStream;
+import org.streaming.perfomance.Publisher;
+import org.streaming.perfomance.Util;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -11,7 +14,7 @@ import java.util.Properties;
 /**
  * Created by syodage on 1/26/16.
  */
-public class KafkaPublisher implements Publisher{
+public class KafkaPublisher implements Publisher {
 
 
     private KafkaProducer<String,String> kafkaProducer;
@@ -28,7 +31,6 @@ public class KafkaPublisher implements Publisher{
             throw e;
         }
         kafkaProducer = new KafkaProducer<String, String>(prop);
-
     }
 
     @Override

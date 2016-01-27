@@ -1,5 +1,8 @@
 package org.streaming.perfomance;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +13,7 @@ import java.util.Properties;
  */
 public class Util {
 
+    private static final Logger log = LoggerFactory.getLogger(Util.class);
     private static Properties props = null;
 
     public static Properties loadProperties() throws IOException {
@@ -18,7 +22,12 @@ public class Util {
                 if (props == null){
                     props = new Properties();
                     InputStream input = Util.class.getResourceAsStream("config.properties");
-                    props.load(input);
+                    if (input == null) {
+                        log.error("Error! config file doesn't exist");
+                    } else {
+                        props.load(input);
+                        log.info("property loaded");
+                    }
                 }
             }
         }

@@ -12,26 +12,30 @@ import java.io.FileReader;
  */
 public class FileDataStream implements DataStream{
 
+    private static final Logger log = LoggerFactory.getLogger(FileDataStream.class);
     private final String topic;
     private final String key;
     private final Publisher publisher;
     private BufferedReader br;
 
-    private static final Logger log = LoggerFactory.getLogger(FileDataStream.class);
+    private final String dataFile;
 
-    public FileDataStream(String topic, String key, Publisher publisher) {
+    public FileDataStream(String datafile, String topic, String key, Publisher publisher) {
         this.topic = topic;
         this.key = key;
         this.publisher = publisher;
+        this.dataFile = datafile;
     }
 
     @Override
     public void open() throws Exception {
-        br = new BufferedReader(new FileReader("/Users/syodage/workspace/mydata/data.txt"));
+        br = new BufferedReader(new FileReader(dataFile));
         String line = null;
+        log.info("Start publishing data to kafka");
         while ((line = br.readLine()) != null) {
             publisher.publish(topic, key, line);
         }
+        log.info("Completed message publishing to kafka");
     }
 
     @Override
@@ -42,6 +46,7 @@ public class FileDataStream implements DataStream{
     @Override
     public void stop() throws Exception {
         br.close();
+        log.info("Closed resources");
     }
 
     @Override

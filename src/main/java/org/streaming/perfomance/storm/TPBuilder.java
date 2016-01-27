@@ -2,7 +2,7 @@ package org.streaming.perfomance.storm;
 
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;
-import org.streaming.spring.storm.bolts.WordCountBolt;
+import org.streaming.perfomance.storm.bolts.WordCountBolt;
 
 /**
  * Created by syodage on 11/25/15.

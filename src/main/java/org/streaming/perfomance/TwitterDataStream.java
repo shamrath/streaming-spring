@@ -1,4 +1,4 @@
-package org.streaming.spring.source;
+package org.streaming.perfomance;
 
 import org.streaming.spring.StreamingUtils;
 import org.streaming.spring.core.DataStream;

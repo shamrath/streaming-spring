@@ -1,13 +1,10 @@
-package org.streaming.spring.storm;
+package org.streaming.perfomance.storm;
 
 import backtype.storm.spout.Scheme;
 import backtype.storm.spout.SchemeAsMultiScheme;
 import backtype.storm.topology.IRichSpout;
-import io.latent.storm.rabbitmq.RabbitMQBolt;
 import io.latent.storm.rabbitmq.RabbitMQSpout;
 import storm.kafka.*;
-
-import java.util.UUID;
 
 /**
  * Created by syodage on 11/26/15.

@@ -1,4 +1,4 @@
-package org.streaming.spring.storm;
+package org.streaming.perfomance.storm;
 
 import backtype.storm.generated.StormTopology;
 import backtype.storm.topology.TopologyBuilder;

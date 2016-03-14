@@ -1,0 +1,60 @@
+A (very) simple example of interactive slurm use.
+
+Info about partitions (what torque would call queues). We currently have
+no time limit on queues:
+
+  [astreib@j-login1 ~]$ sinfo
+  PARTITION AVAIL  TIMELIMIT  NODES  STATE NODELIST
+  12core       up   infinite     96   idle j-[001-096]
+  18core     down   infinite      8  down* j-[101-108]
+  18core     down   infinite     24   down j-[097-100,109-128]
+  general*     up   infinite      8  down* j-[101-108]
+  general*     up   infinite     96   idle j-[001-096]
+  general*     up   infinite     24   down j-[097-100,109-128]
+
+Get an allocation of (3) nodes running a bash shell, in the default
+"general" partition:
+
+  [astreib@j-login1 ~]$ salloc -N3 bash
+  salloc: Granted job allocation 59
+
+I'm now in a subshell with SLURM environment:
+
+  [astreib@j-login1 ~]$ env | grep SLURM
+  SLURM_NODELIST=j-[001-003]
+  SLURM_JOB_NAME=bash
+  SLURM_NODE_ALIASES=(null)
+  SLURM_NNODES=3
+  SLURM_JOBID=59
+  SLURM_TASKS_PER_NODE=24(x3)
+  SLURM_JOB_ID=59
+  SLURM_SUBMIT_DIR=/N/u/astreib
+  SLURM_JOB_NODELIST=j-[001-003]
+  SLURM_CLUSTER_NAME=juliet
+  SLURM_JOB_CPUS_PER_NODE=24(x3)
+  SLURM_SUBMIT_HOST=j-login1
+  SLURM_JOB_PARTITION=general
+  SLURM_JOB_NUM_NODES=3
+
+I can run commands on my allocated nodes with "srun". For example to run
+the hostname command in a bash shell:
+
+  [astreib@j-login1 ~]$ srun bash -c hostname
+  j-003
+  j-001
+  j-002
+
+To exit my allocation:
+
+  [astreib@j-login1 ~]$ exit
+  exit
+  salloc: Relinquishing job allocation 59
+
+
+Also, when I have an allocation in slurm, I can ssh to any of the nodes
+in my allocation from the juliet login node.
+
+You can also read the man pages about slurm commands, e.g. salloc,
+sinfo, srun, sbatch
+
+As you start to work please let us know if you have specific questions.

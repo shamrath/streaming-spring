@@ -16,4 +16,4 @@ target/
 *.iml
 
 #sample data file
-*.txt
+data.txt

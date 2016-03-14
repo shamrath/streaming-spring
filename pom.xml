@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.streaming.spring</groupId>
-    <artifactId>streaming</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>org.streaming</groupId>
+    <artifactId>stream-performance</artifactId>
+    <version>1.0</version>
     <build>
         <plugins>
             <plugin>
@@ -17,6 +17,44 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--<mainClass>org.streaming.perfomance.Main</mainClass>-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>org.streaming.perfomance.Main</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+
+
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>appassembler-maven-plugin</artifactId>
@@ -43,7 +81,7 @@
                     </binFileExtensions>
                     <programs>
                         <program>
-                            <mainClass>org.streaming.spring.Bootstrap</mainClass>
+                            <mainClass>org.streaming.perfomance.Main</mainClass>
                             <id>app</id>
                         </program>
                     </programs>
@@ -53,6 +91,7 @@
     </build>
 
     <dependencies>
+
         <dependency>
             <groupId>org.twitter4j</groupId>
             <artifactId>twitter4j-stream</artifactId>
@@ -96,6 +135,13 @@
             <groupId>io.latent</groupId>
             <artifactId>storm-rabbitmq</artifactId>
             <version>0.6.1</version>
+        </dependency>
+
+<!--logging dependencies-->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.13</version>
         </dependency>
     </dependencies>
 

@@ -6,4 +6,7 @@ package org.streaming.perfomance;
 public interface Consumer {
 
     void consume();
+
+
+    void close();
 }

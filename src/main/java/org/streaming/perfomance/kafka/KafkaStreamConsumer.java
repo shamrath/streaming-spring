@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.streaming.perfomance.Consumer;
 
+import java.util.Calendar;
+
 /**
  * Created by syodage on 1/26/16.
  */
@@ -27,9 +29,14 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
         while (it.hasNext()) {
             MessageAndMetadata<String, String> next = it.next();
             log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {}", String.valueOf(consumerNumber),
-                    next.partition(), next.offset(), next.message());
+                    next.partition(), next.offset(), next.message() + " - " + String.valueOf(Calendar.getInstance().getTime().getTime()));
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
+    }
+
+    @Override
+    public void close() {
+        // nothing
     }
 
     @Override

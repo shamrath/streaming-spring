@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by syodage on 1/26/16.
@@ -29,14 +30,7 @@ public class KafkaConsumerGroup implements Consumer{
     private final int consumerCount;
     private ExecutorService executor;
 
-    public KafkaConsumerGroup(int consumerCount) {
-        Properties prop  = null;
-        try {
-            prop = Util.loadProperties();
-        } catch (IOException e) {
-            log.error("Error! Property file load attempt failed", e);
-            System.exit(-1);
-        }
+    public KafkaConsumerGroup(int consumerCount, Properties prop) {
         ConsumerConfig consumerConfig = new ConsumerConfig(prop);
         consumer = kafka.consumer.Consumer.createJavaConsumerConnector(consumerConfig);
         this.topic = prop.getProperty("kafka.topic");
@@ -60,4 +54,24 @@ public class KafkaConsumerGroup implements Consumer{
             threadNumber++;
         }
     }
+
+    @Override
+    public void close() {
+        if (consumer != null) {
+            consumer.shutdown();
+        }
+        if (executor != null) {
+            executor.shutdown();
+        }
+
+        try {
+            if (!executor.awaitTermination(5000, TimeUnit.MILLISECONDS)) {
+                log.warn("Timed out waiting for consumer threads to shut down, exiting uncleanly");
+            }
+        } catch (InterruptedException e) {
+            log.error("Interrupted during shutdown, exiting uncleanly");
+        }
+    }
+
+
 }

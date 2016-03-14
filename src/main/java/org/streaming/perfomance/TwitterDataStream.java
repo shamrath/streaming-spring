@@ -1,6 +1,5 @@
 package org.streaming.perfomance;
 
-import org.streaming.spring.StreamingUtils;
 import twitter4j.*;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
@@ -18,7 +17,7 @@ public class TwitterDataStream implements DataStream {
     private static final String _accessTokenSecret = "aK2QnRotM47tpqOTM5WF9PbRplthdGDW2QudmijVbFcuV";
 
     public TwitterDataStream(StatusListener statusListener) {
-        twitterStream = new TwitterStreamFactory(StreamingUtils.getTwitterConfig()).getInstance();
+        twitterStream = new TwitterStreamFactory(getTwitterConfig()).getInstance();
         twitterStream.addListener(statusListener);
         twitterStream.filter(new FilterQuery().track(new String[]{"java", "scala", "python", "test", "got", "today"})
                 .language(new String[]{"en"}));

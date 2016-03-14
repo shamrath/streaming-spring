@@ -21,16 +21,8 @@ public class KafkaPublisher implements Publisher {
     private static final Logger log = LoggerFactory.getLogger(KafkaPublisher.class);
     private DataStream dataStream;
 
-    public KafkaPublisher() throws IOException {
-        // load properties from configuration file
-        Properties prop = null;
-        try {
-            prop = Util.loadProperties();
-        } catch (IOException e) {
-            log.error("Error! configuration loading failed");
-            throw e;
-        }
-        kafkaProducer = new KafkaProducer<String, String>(prop);
+    public KafkaPublisher(Properties prop) throws IOException {
+        kafkaProducer = new KafkaProducer<>(prop);
     }
 
     @Override

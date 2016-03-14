@@ -36,7 +36,7 @@ public class Main {
             return;
         }
 
-        Properties prop = Util.loadProperties(false);
+        Properties prop = Util.loadProperties(true);
         prop.list(System.out);
         Map<String, String> options = parseArgs(args);
         for (String s : options.keySet()) {
@@ -63,7 +63,7 @@ public class Main {
                     String topic = prop.getProperty("kafka.topic");
                     String key = prop.getProperty("kafka.topic.key");
                     Publisher publisher = new KafkaPublisher(prop);
-                    DataStream dataStream = new TimeDataStream(topic, key, publisher, 1000);
+                    DataStream dataStream = new TimeDataStream(topic, key, publisher, Integer.valueOf(datafile));
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
                     dataStream.open();
 

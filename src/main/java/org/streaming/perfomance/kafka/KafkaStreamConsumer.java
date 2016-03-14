@@ -36,6 +36,7 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
 
     @Override
     public void close() {
+        log.info("*********  consumer close invoked");
         // nothing
     }
 

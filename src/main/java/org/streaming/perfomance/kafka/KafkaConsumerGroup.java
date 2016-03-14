@@ -50,13 +50,22 @@ public class KafkaConsumerGroup implements Consumer{
 
         int threadNumber = 0;
         for (KafkaStream<String, String> m_stream : m_streams) {
-            executor.submit(new KafkaStreamConsumer(m_stream, threadNumber));
+
+            KafkaStreamConsumer task = new KafkaStreamConsumer(m_stream, threadNumber);
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    task.close();
+                }
+            }));
+            executor.submit(task);
             threadNumber++;
         }
     }
 
     @Override
     public void close() {
+        log.info("Kafaka Consumer Group close invoked");
         if (consumer != null) {
             consumer.shutdown();
         }

@@ -26,12 +26,9 @@ public class Main {
     static int min_1 = 60 * sec_1;
     static int hour_1 = 60 * min_1;
 
-    private static final CountDownLatch countDownLatch = new CountDownLatch(1);
-
     public static void main(String[] args) throws Exception {
-        args = new String[2];
+//        args = new String[2];
 //        args[0] = "-p";
-
 //        args[1] = "-d"; args[2] = "data.txt";
 
         if(args.length == 0){
@@ -68,7 +65,6 @@ public class Main {
                     Publisher publisher = new KafkaPublisher(prop);
                     DataStream dataStream = new TimeDataStream(topic, key, publisher, 1000);
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
-                    countDownLatch.countDown();
                     dataStream.open();
 
                     // close publisher
@@ -86,22 +82,13 @@ public class Main {
             @Override
             public void run() {
                 Consumer consumer = new KafkaConsumerGroup(consumerCount, prop);
-                try {
-                    countDownLatch.wait();
-                } catch (InterruptedException e) {
-                    log.error("CountDown Latch Error", e);
-                    return;
-                }
+                Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        consumer.close();
+                    }
+                }));
                 consumer.consume();
-
-                try {
-                    Thread.sleep(min_1);
-                } catch (InterruptedException e) {
-                    log.error("Interruption ", e);
-                }
-
-                consumer.close();
-
             }
         }).start();
 
@@ -109,6 +96,7 @@ public class Main {
 
     private static Map<String, String> parseArgs(String[] args) {
         int n = args.length;
+        log.info("*****************  n = " + n);
         Map<String,String> options = new HashMap<>();
         int i = 0;
         while (i < n) {

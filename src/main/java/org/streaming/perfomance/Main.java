@@ -62,7 +62,7 @@ public class Main {
                 try {
                     String topic = prop.getProperty("kafka.topic");
                     String key = prop.getProperty("kafka.topic.key");
-                    Publisher publisher = new KafkaPublisher(prop);
+                    Publisher publisher = new KafkaPublisher(prop, Integer.parseInt(prop.getProperty("partition.count")));
                     DataStream dataStream = new TimeDataStream(topic, key, publisher, Integer.valueOf(datafile));
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
                     dataStream.open();

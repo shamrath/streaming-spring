@@ -50,7 +50,8 @@ public class TimeDataStream implements DataStream {
         int i = count;
         long time;
         while (i > 0) {
-            time = Calendar.getInstance().getTime().getTime();
+//            time = Calendar.getInstance().getTime().getTime();
+            time = System.nanoTime();
             publisher.publish(topic, key, String.valueOf(time));
             Thread.sleep(100);
             i--;

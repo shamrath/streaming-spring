@@ -28,8 +28,10 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
         ConsumerIterator<String, String> it = kafkaStream.iterator();
         while (it.hasNext()) {
             MessageAndMetadata<String, String> next = it.next();
+            long time = System.nanoTime();
+//            long time = Calendar.getInstance().getTime().getTime();
             log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {}", String.valueOf(consumerNumber),
-                    next.partition(), next.offset(), next.message() + " - " + String.valueOf(Calendar.getInstance().getTime().getTime()));
+                    next.partition(), next.offset(), next.message() + " - " + String.valueOf(time));
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }

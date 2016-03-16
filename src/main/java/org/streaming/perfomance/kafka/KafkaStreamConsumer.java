@@ -30,8 +30,9 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
             MessageAndMetadata<String, String> next = it.next();
             long time = System.nanoTime();
 //            long time = Calendar.getInstance().getTime().getTime();
-            log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {}", String.valueOf(consumerNumber),
-                    next.partition(), next.offset(), next.message() + " - " + String.valueOf(time));
+            long diff = time - Long.valueOf(next.message());
+            log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {} = {}", String.valueOf(consumerNumber),
+                    next.partition(), next.offset(), String.valueOf(time) + " - " + next.message(), String.valueOf(diff) + " ns");
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }

@@ -50,12 +50,12 @@ public class PerfDataStream implements DataStream {
         log.info("Data : " + data);
         int i = count;
         long time;
-        StringBuilder sb = new StringBuilder(data);
         while (i > 0) {
+            StringBuilder sb = new StringBuilder(data);
 //            time = Calendar.getInstance().getTime().getTime();
             time = System.nanoTime();
             sb.append(time);
-            publisher.publish(topic, key, String.valueOf(time));
+            publisher.publish(topic, key, sb.toString());
             Thread.sleep(100);
             i--;
         }

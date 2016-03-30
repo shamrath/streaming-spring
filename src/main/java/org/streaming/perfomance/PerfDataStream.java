@@ -23,21 +23,19 @@ package org.streaming.perfomance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
-
 
 /**
  * This produce current time as data stream
  */
-public class TimeDataStream implements DataStream {
+public class PerfDataStream implements DataStream {
 
-    private static final Logger log = LoggerFactory.getLogger(TimeDataStream.class);
+    private static final Logger log = LoggerFactory.getLogger(PerfDataStream.class);
     private final String topic;
     private final String key;
     private final Publisher publisher;
     private final int count;
 
-    public TimeDataStream(String topic, String key, Publisher publisher, int count) {
+    public PerfDataStream(String topic, String key, Publisher publisher, int count) {
         this.topic = topic;
         this.key = key;
         this.publisher = publisher;

@@ -47,16 +47,14 @@ public class PerfDataStream implements DataStream {
     @Override
     public void open() throws Exception {
         log.info("Start publishing data to kafka");
-        log.info("Data : " + data);
         int i = count;
         long time;
         while (i > 0) {
             StringBuilder sb = new StringBuilder(data);
-//            time = Calendar.getInstance().getTime().getTime();
             time = System.nanoTime();
             sb.append(time);
             publisher.publish(topic, key, sb.toString());
-            Thread.sleep(100);
+//            Thread.sleep(100);
             i--;
         }
         log.info("Completed message publishing to kafka");

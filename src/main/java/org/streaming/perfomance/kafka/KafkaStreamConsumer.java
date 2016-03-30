@@ -29,16 +29,13 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
         while (it.hasNext()) {
             MessageAndMetadata<String, String> next = it.next();
             long consumedTime = System.nanoTime();
-//            long time = Calendar.getInstance().getTime().getTime();
-
-            Long produeTime = getProduceTime(next.message());
-            long diff = consumedTime - produeTime;
-            log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {} = {} : message  : {}",
+            Long produceTime = getProduceTime(next.message());
+            long diff = consumedTime - produceTime;
+            log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {} = {}",
                     String.valueOf(consumerNumber),
                     next.partition(), next.offset(),
-                    String.valueOf(consumedTime) + " - " + produeTime,
-                    String.valueOf(diff) + " ns",
-                    next.message());
+                    String.valueOf(consumedTime) + " - " + produceTime,
+                    String.valueOf(diff) + " ns");
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }

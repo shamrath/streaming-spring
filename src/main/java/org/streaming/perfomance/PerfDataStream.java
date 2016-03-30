@@ -54,7 +54,7 @@ public class PerfDataStream implements DataStream {
             time = System.nanoTime();
             sb.append(time);
             publisher.publish(topic, key, sb.toString());
-            Thread.sleep(100);
+            Thread.sleep(200);
             i--;
         }
         log.info("Completed message publishing to kafka");

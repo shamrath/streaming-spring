@@ -38,6 +38,9 @@
                     <archive>
                         <manifest>
                             <mainClass>org.streaming.perfomance.Main</mainClass>
+                            <!--<addClasspath>true</addClasspath>-->
+                            <!--<classpathLayoutType>custom</classpathLayoutType>-->
+                            <!--<customClasspathLayout>log4j.properties</customClasspathLayout>-->
                         </manifest>
                     </archive>
                 </configuration>

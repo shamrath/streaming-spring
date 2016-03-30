@@ -77,6 +77,10 @@ public class Main {
                 consumer = new RabbitmqConsumer();
                 consumeData(consumer);
                 log.info("Rabbitmq Consumer completed");
+                break;
+            default:
+                log.error("Invalid first argument");
+                break;
         }
 
     }
@@ -125,14 +129,16 @@ public class Main {
         Map<String,String> options = new HashMap<>();
         int i = 0;
         while (i < n) {
-            if (args[i].equalsIgnoreCase("-p")) {
-                options.put("-p", null);
-            } else if (args[i].equalsIgnoreCase("-c")) {
-                options.put("-c", args[++i]);
-            } else if (args[i].equalsIgnoreCase("-d")) {
-                options.put("-d", args[++i]);
-            } else {
-                log.error("Invalid argument: {}" , args[i]);
+            switch (args[i]){
+                case "-kp":case "-kc":case "-rp":case "-rc":
+                    options.put(args[i], null);
+                    break;
+                case "-d":case "-n":
+                    options.put(args[i], args[++i]);
+                    break;
+                default:
+                    log.error("Invalid argument: {}" , args[i]);
+                    break;
             }
             i++;
         }

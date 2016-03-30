@@ -34,12 +34,14 @@ public class PerfDataStream implements DataStream {
     private final String key;
     private final Publisher publisher;
     private final int count;
+    private final String data;
 
-    public PerfDataStream(String topic, String key, Publisher publisher, int count) {
+    public PerfDataStream(String topic, String key, Publisher publisher, int count, String data) {
         this.topic = topic;
         this.key = key;
         this.publisher = publisher;
         this.count = count;
+        this.data = data;
     }
 
     @Override
@@ -47,9 +49,11 @@ public class PerfDataStream implements DataStream {
         log.info("Start publishing data to kafka");
         int i = count;
         long time;
+        StringBuilder sb = new StringBuilder(data);
         while (i > 0) {
 //            time = Calendar.getInstance().getTime().getTime();
             time = System.nanoTime();
+            sb.append(time);
             publisher.publish(topic, key, String.valueOf(time));
             Thread.sleep(100);
             i--;

@@ -12,6 +12,10 @@ import org.streaming.perfomance.rabbitmq.RabbitmqConsumer;
 import org.streaming.perfomance.rabbitmq.RabbitmqPublisher;
 import org.streaming.perfomance.storm.TPBuilder;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -92,8 +96,8 @@ public class Main {
                 try {
                     String topic = prop.getProperty("kafka.topic");
                     String key = prop.getProperty("kafka.topic.key");
-
-                    DataStream dataStream = new PerfDataStream(topic, key, publisher, Integer.valueOf(datafile));
+                    String data = getData(datafile);
+                    DataStream dataStream = new PerfDataStream(topic, key, publisher, n, data);
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
                     dataStream.open();
 
@@ -102,6 +106,18 @@ public class Main {
                 } catch (Exception e) {
                     log.error("Consumer Error! ", e);
                 }
+            }
+
+            private String getData(String dataFile) throws IOException {
+                StringBuffer sb = new StringBuffer();
+                if (dataFile != null) {
+                    String line = null;
+                    BufferedReader br = new BufferedReader(new FileReader(dataFile));
+                    while ((line = br.readLine()) != null){
+                        sb.append(line);
+                    }
+                }
+                return sb.toString();
             }
         }).start();
 

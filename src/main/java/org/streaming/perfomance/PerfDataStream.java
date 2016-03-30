@@ -47,6 +47,7 @@ public class PerfDataStream implements DataStream {
     @Override
     public void open() throws Exception {
         log.info("Start publishing data to kafka");
+        log.info("Data : " + data);
         int i = count;
         long time;
         StringBuilder sb = new StringBuilder(data);

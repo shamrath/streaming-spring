@@ -34,7 +34,7 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
             Long produeTime = getProduceTime(next.message());
             long diff = consumedTime - produeTime;
             log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {} = {}", String.valueOf(consumerNumber),
-                    next.partition(), next.offset(), String.valueOf(consumedTime) + " - " + next.message(), String.valueOf(diff) + " ns");
+                    next.partition(), next.offset(), String.valueOf(consumedTime) + " - " + produeTime, String.valueOf(diff) + " ns");
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }

@@ -31,7 +31,7 @@ import java.util.*;
  *      -n num of messages
  * -rc = start rabbitmq consumer
  */
-public class Main {
+public class Main implements Constants{
 
     private static final Logger log = LoggerFactory.getLogger(Main.class);
 
@@ -49,8 +49,8 @@ public class Main {
             return;
         }
 
-        Properties prop = Util.loadProperties(true);
-        prop.list(System.out);
+        Properties prop = ConfigReader.loadProperties(true);
+//        prop.list(System.out);
         Map<String, String> options = parseArgs(args);
         for (String s : options.keySet()) {
             log.info("{}  -> {}", s, options.get(s));
@@ -58,25 +58,25 @@ public class Main {
         Publisher publisher = null;
         Consumer consumer = null;
         switch (args[0]){
-            case "-kp":
+            case KAFKA_PUBLISHER:
                 log.info("Kafka Publisher starting");
-                publisher = new KafkaPublisher(prop, Integer.parseInt(prop.getProperty("partition.count")));
-                publishData(options.get("-d"), Integer.valueOf(options.get("-n")), prop, publisher);
+                publisher = new KafkaPublisher();
+                publishData(options.get("-d"), Integer.valueOf(options.get("-n")), publisher);
                 log.info("Kafka Publisher completed");
                 break;
-            case "-kc":
+            case KAFKA_CONSUMER:
                 log.info("Kafka Consumer starting");
-                consumer = new KafkaConsumerGroup(Integer.valueOf(options.get("-n")), prop);
+                consumer = new KafkaConsumerGroup(Integer.valueOf(options.get("-n")));
                 consumeData(consumer);
                 log.info("Kafka Consumer completed");
                 break;
-            case "-rp":
+            case RABBITMQ_PUBLISHER:
                 log.info("Rabbitmq Publisher starting");
                 publisher = new RabbitmqPublisher();
-                publishData(options.get("-d"), Integer.valueOf(options.get("-n")), prop, publisher);
+                publishData(options.get("-d"), Integer.valueOf(options.get("-n")), publisher);
                 log.info("Rabbitmq Publisher completed");
                 break;
-            case "-rc":
+            case RABBITMQ_CONSUMER:
                 log.info("Rabbitmq Consumer Starting");
                 consumer = new RabbitmqConsumer();
                 consumeData(consumer);
@@ -89,13 +89,13 @@ public class Main {
 
     }
 
-    private static void publishData(String datafile, int n, Properties prop, Publisher publisher) throws Exception {
+    private static void publishData(String datafile, int n, Publisher publisher) throws Exception {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String topic = prop.getProperty("kafka.topic");
-                    String key = prop.getProperty("kafka.topic.key");
+                    String topic = ConfigReader.getProperty(KAFKA_TOPIC);
+                    String key = ConfigReader.getProperty(KAFKA_TOPIC_KEY);
                     String data = getData(datafile);
                     DataStream dataStream = new PerfDataStream(topic, key, publisher, n, data);
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
@@ -146,7 +146,10 @@ public class Main {
         int i = 0;
         while (i < n) {
             switch (args[i]){
-                case "-kp":case "-kc":case "-rp":case "-rc":
+                case KAFKA_PUBLISHER:
+                case KAFKA_CONSUMER:
+                case RABBITMQ_PUBLISHER:
+                case RABBITMQ_CONSUMER:
                     options.put(args[i], null);
                     break;
                 case "-d":case "-n":

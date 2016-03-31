@@ -7,6 +7,7 @@ import kafka.serializer.Decoder;
 import kafka.serializer.StringDecoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.streaming.perfomance.ConfigReader;
 import org.streaming.perfomance.Consumer;
 import org.streaming.perfomance.Util;
 
@@ -30,10 +31,10 @@ public class KafkaConsumerGroup implements Consumer{
     private final int consumerCount;
     private ExecutorService executor;
 
-    public KafkaConsumerGroup(int consumerCount, Properties prop) {
-        ConsumerConfig consumerConfig = new ConsumerConfig(prop);
+    public KafkaConsumerGroup(int consumerCount) {
+        ConsumerConfig consumerConfig = new ConsumerConfig(ConfigReader.getProperties());
         consumer = kafka.consumer.Consumer.createJavaConsumerConnector(consumerConfig);
-        this.topic = prop.getProperty("kafka.topic");
+        this.topic = ConfigReader.getProperty(KAFKA_TOPIC);
         this.consumerCount = consumerCount;
     }
 

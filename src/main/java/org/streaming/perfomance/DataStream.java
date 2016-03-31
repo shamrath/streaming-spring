@@ -3,7 +3,7 @@ package org.streaming.perfomance;
 /**
  * Created by syodage on 11/10/15.
  */
-public interface DataStream {
+public interface DataStream extends Constants{
 
     /**
      * Start data streaming operations

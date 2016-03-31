@@ -4,6 +4,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.streaming.perfomance.ConfigReader;
 import org.streaming.perfomance.DataStream;
 import org.streaming.perfomance.Publisher;
 
@@ -22,9 +23,9 @@ public class KafkaPublisher implements Publisher {
     private int partitionCount;
     private int partition = 0;
 
-    public KafkaPublisher(Properties prop, int partitionCount) throws IOException {
-        this.partitionCount = partitionCount;
-        kafkaProducer = new KafkaProducer<>(prop);
+    public KafkaPublisher() throws IOException {
+        this.partitionCount = ConfigReader.getIntProperty(KAFKA_PARTITION_COUNT);
+        kafkaProducer = new KafkaProducer<>(ConfigReader.getProperties());
     }
 
     @Override

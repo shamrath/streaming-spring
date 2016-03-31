@@ -35,6 +35,7 @@ public class PerfDataStream implements DataStream {
     private final Publisher publisher;
     private final int count;
     private final String data;
+    private final boolean isDebug;
 
     public PerfDataStream(String topic, String key, Publisher publisher, int count, String data) {
         this.topic = topic;
@@ -42,19 +43,27 @@ public class PerfDataStream implements DataStream {
         this.publisher = publisher;
         this.count = count;
         this.data = data;
+        this.isDebug = ConfigReader.getBoolProperty(ENBALE_DEBUG, false);
     }
 
     @Override
     public void open() throws Exception {
         log.info("Start publishing data to kafka");
         int i = count;
+        long sleep = ConfigReader.getLongProperty(PUBLISHER_MESSAGE_DELAY, 100);
+        if (isDebug) {
+            log.info("Data size : {}, thread sleep time ; {}", data.length(), sleep);
+        }
         long time;
         while (i > 0) {
             StringBuilder sb = new StringBuilder(data);
+            if (isDebug) {
+                log.info("Publishing {} message ", i);
+            }
             time = System.nanoTime();
             sb.append(time);
             publisher.publish(topic, key, sb.toString());
-            Thread.sleep(ConfigReader.getLongProperty(PUBLISHER_MESSAGE_DELAY, 100));
+            Thread.sleep(sleep);
             i--;
         }
         log.info("Completed message publishing to kafka");

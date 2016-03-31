@@ -91,4 +91,12 @@ public class ConfigReader {
         return Integer.parseInt(getProperty(key));
     }
 
+    public static boolean getBoolProperty(String key, boolean defaultValue) {
+        return Boolean.parseBoolean(getProperty(key, String.valueOf(defaultValue)));
+    }
+
+    public static boolean getBoolProperty(String key) {
+        return Boolean.parseBoolean(getProperty(key));
+    }
+
 }

@@ -28,6 +28,7 @@ public interface Constants {
     String RABBITMQ_CONSUMER = "-rc";
 
     String PUBLISHER_MESSAGE_DELAY = "publisher.message.delay";
+    String ENBALE_DEBUG = "enable.debug";
     String KAFKA_TOPIC = "kafka.topic";
     String KAFKA_TOPIC_KEY = "kafka.topic.key";
     String KAFKA_PARTITION_COUNT = "partition.count";

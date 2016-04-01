@@ -51,18 +51,22 @@ public class PerfDataStream implements DataStream {
         log.info("Start publishing data to kafka");
         int i = count;
         long sleep = ConfigReader.getLongProperty(PUBLISHER_MESSAGE_DELAY, 100);
+        long time = System.nanoTime();
+        String chunk = data.substring(0, data.length() - String.valueOf(time).length());
         if (isDebug) {
-            log.info("Data size : {}, thread sleep time ; {}", data.length(), sleep);
+            log.info("Data size : {}, chunk size : {}, thread sleep time ; {}", data.length(), chunk.length(), sleep);
         }
-        long time;
         while (i > 0) {
-            StringBuilder sb = new StringBuilder(data);
+            StringBuilder sb = new StringBuilder(chunk);
             if (isDebug) {
-                log.info("Publishing {} message ", i);
+                log.info("Publishing {} message", i);
             }
             time = System.nanoTime();
             sb.append(time);
             publisher.publish(topic, key, sb.toString());
+            if (isDebug) {
+                log.info("Published message size : {}", sb.length());
+            }
             Thread.sleep(sleep);
             i--;
         }

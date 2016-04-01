@@ -5,6 +5,7 @@ import kafka.consumer.KafkaStream;
 import kafka.message.MessageAndMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.streaming.perfomance.ConfigReader;
 import org.streaming.perfomance.Consumer;
 
 import java.util.Calendar;
@@ -17,6 +18,7 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
     private static final Logger log = LoggerFactory.getLogger(KafkaStreamConsumer.class);
     private KafkaStream<String, String> kafkaStream;
     private int consumerNumber;
+    boolean isDebug = ConfigReader.getBoolProperty(ENBALE_DEBUG, false);
 
     public KafkaStreamConsumer(KafkaStream<String, String> kafkaStream, int consumerNumber) {
         this.kafkaStream = kafkaStream;
@@ -36,12 +38,16 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
                     next.partition(), next.offset(),
                     String.valueOf(consumedTime) + " - " + produceTime,
                     String.valueOf(diff) + " ns");
+
         }
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }
 
     private Long getProduceTime(String message) {
         int l = message.length();
+        if (isDebug) {
+            log.info("Consumed message length : {}", l);
+        }
         return Long.valueOf(message.substring(l - 16, l));
     }
 

@@ -52,7 +52,7 @@ public class PerfDataStream implements DataStream {
         int i = count;
         long sleep = ConfigReader.getLongProperty(PUBLISHER_MESSAGE_DELAY, 100);
         long time = System.nanoTime();
-        String chunk = data.substring(0, data.length() - String.valueOf(time).length());
+        String chunk = data.substring(0, data.length() - String.valueOf(time).length() + 1);
         if (isDebug) {
             log.info("Data size : {}, chunk size : {}, thread sleep time ; {}", data.length(), chunk.length(), sleep);
         }

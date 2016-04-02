@@ -33,7 +33,7 @@ public class FileDataStream implements DataStream{
         String line = null;
         log.info("Start publishing data to kafka");
         while ((line = br.readLine()) != null) {
-            publisher.publish(topic, key, line);
+            publisher.publish(line);
         }
         log.info("Completed message publishing to kafka");
     }

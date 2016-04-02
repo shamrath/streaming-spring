@@ -30,16 +30,12 @@ import org.slf4j.LoggerFactory;
 public class PerfDataStream implements DataStream {
 
     private static final Logger log = LoggerFactory.getLogger(PerfDataStream.class);
-    private final String topic;
-    private final String key;
     private final Publisher publisher;
     private final int count;
     private final String data;
     private final boolean isDebug;
 
-    public PerfDataStream(String topic, String key, Publisher publisher, int count, String data) {
-        this.topic = topic;
-        this.key = key;
+    public PerfDataStream(Publisher publisher, int count, String data) {
         this.publisher = publisher;
         this.count = count;
         this.data = data;
@@ -63,7 +59,7 @@ public class PerfDataStream implements DataStream {
             }
             time = System.nanoTime();
             sb.append(time);
-            publisher.publish(topic, key, sb.toString());
+            publisher.publish(sb.toString());
             if (isDebug) {
                 log.info("Published message size : {}", sb.length());
             }

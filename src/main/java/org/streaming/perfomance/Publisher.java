@@ -5,5 +5,8 @@ package org.streaming.perfomance;
  */
 public interface Publisher extends Constants{
 
-    void publish(String topic, String key, String msg);
+    void publish(String msg);
+
+
+    void close();
 }

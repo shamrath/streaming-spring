@@ -17,6 +17,8 @@ import java.util.Properties;
 public class KafkaPublisher implements Publisher {
 
 
+    private final String topic;
+    private final String key;
     private KafkaProducer<String,String> kafkaProducer;
     private static final Logger log = LoggerFactory.getLogger(KafkaPublisher.class);
     private DataStream dataStream;
@@ -25,14 +27,21 @@ public class KafkaPublisher implements Publisher {
 
     public KafkaPublisher() throws IOException {
         this.partitionCount = ConfigReader.getIntProperty(KAFKA_PARTITION_COUNT);
+        this.topic = ConfigReader.getProperty(KAFKA_TOPIC);
+        this.key = ConfigReader.getProperty(KAFKA_TOPIC_KEY);
         kafkaProducer = new KafkaProducer<>(ConfigReader.getProperties());
     }
 
     @Override
-    public void publish(String topic, String key, String msg) {
+    public void publish(String msg) {
         partition = partition % partitionCount;
-        ProducerRecord<String, String> record = new ProducerRecord<String, String>(topic, partition, key, msg);
+        ProducerRecord<String, String> record = new ProducerRecord<String, String>(this.topic, partition, this.key, msg);
         kafkaProducer.send(record);
         partition++;
+    }
+
+    @Override
+    public void close() {
+        // nothing to do
     }
 }

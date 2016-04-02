@@ -68,12 +68,12 @@ public class TwitterDataStream implements DataStream {
 
         public void onStatus(Status status) {
             if (status.getLang().equals("en")) {
-                _producer.publish(_topic, _key,status.getLang() + " : " + status.getText());
+                _producer.publish(status.getLang() + " : " + status.getText());
             }
         }
 
         public void onDeletionNotice(StatusDeletionNotice statusDeletionNotice) {
-            _producer.publish(_topic, _key, String.valueOf(statusDeletionNotice.getStatusId()));
+            _producer.publish(String.valueOf(statusDeletionNotice.getStatusId()));
 
         }
 

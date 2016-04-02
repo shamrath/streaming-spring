@@ -17,6 +17,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by syodage on 1/26/16.
@@ -40,9 +42,6 @@ public class Main implements Constants{
     static int hour_1 = 60 * min_1;
 
     public static void main(String[] args) throws Exception {
-//        args = new String[2];
-//        args[0] = "-p";
-//        args[1] = "-d"; args[2] = "data.txt";
 
         if(args.length == 0){
             printOptions();
@@ -72,14 +71,22 @@ public class Main implements Constants{
                 break;
             case RABBITMQ_PUBLISHER:
                 log.info("Rabbitmq Publisher starting");
-                publisher = new RabbitmqPublisher();
+                List<String> brokerURIs = getBrokerURIs();
+                List<String> routingkeys = getRoutingkeys(brokerURIs.size());
+                log.info("Publisher Broker URI : " + brokerURIs.get(0));
+                publisher = new RabbitmqPublisher("1", brokerURIs.get(0), routingkeys);
                 publishData(options.get("-d"), Integer.valueOf(options.get("-n")), publisher);
                 log.info("Rabbitmq Publisher completed");
                 break;
             case RABBITMQ_CONSUMER:
                 log.info("Rabbitmq Consumer Starting");
-                consumer = new RabbitmqConsumer();
-                consumeData(consumer);
+                List<String> brokers = getBrokerURIs();
+                String consumerPrfix = ConfigReader.getProperty(RABBITMQ_CONSUMER_PREFIX);
+                List<String> binding_keys = getRoutingkeys(brokers.size());
+                for (int i = 0; i < brokers.size(); i++) {
+                    consumer = new RabbitmqConsumer(brokers.get(i), consumerPrfix + "_" + i, binding_keys.get(i));
+                    consumeData(consumer);
+                }
                 log.info("Rabbitmq Consumer completed");
                 break;
             default:
@@ -89,15 +96,36 @@ public class Main implements Constants{
 
     }
 
+    private static List<String> getRoutingkeys(int size) {
+        String bindingPrefix = ConfigReader.getProperty(RABBITMQ_BINDING_PREFIX);
+        List<String> rkeys = new ArrayList<>();
+        for (int i = 0; i < size; i++) {
+            rkeys.add(bindingPrefix + "_" + i);
+        }
+        return rkeys;
+    }
+
+    private static List<String> getBrokerURIs() {
+        String servers = ConfigReader.getProperty(RABBITMQ_SERVERS);
+        String user = ConfigReader.getProperty(RABBITMQ_USERNAME);
+        String passwd = ConfigReader.getProperty(RABBITMQ_PASSWORD);
+        String port = ConfigReader.getProperty(RABBITMQ_PORT);
+        String vhost = ConfigReader.getProperty(RABBITMQ_VHOST);
+        String[] split = servers.split(",");
+        List<String> uris = new ArrayList<>();
+        for (String server : split) {
+            uris.add("amqp://" + user + ":" + passwd + "@" + server + ":" + port + "/" + vhost);
+        }
+        return uris;
+    }
+
     private static void publishData(String datafile, int n, Publisher publisher) throws Exception {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String topic = ConfigReader.getProperty(KAFKA_TOPIC);
-                    String key = ConfigReader.getProperty(KAFKA_TOPIC_KEY);
                     String data = getData(datafile);
-                    DataStream dataStream = new PerfDataStream(topic, key, publisher, n, data);
+                    DataStream dataStream = new PerfDataStream(publisher, n, data);
 //        FileDataStream dataStream = new FileDataStream(datafile, topic, key, publisher);
                     dataStream.open();
 
@@ -109,7 +137,7 @@ public class Main implements Constants{
             }
 
             private String getData(String dataFile) throws IOException {
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 if (dataFile != null) {
                     String line = null;
                     BufferedReader br = new BufferedReader(new FileReader(dataFile));

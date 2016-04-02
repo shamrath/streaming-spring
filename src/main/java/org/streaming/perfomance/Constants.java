@@ -34,4 +34,16 @@ public interface Constants {
     String KAFKA_PARTITION_COUNT = "partition.count";
 
 
+    // Rabbitmq config keys
+    String RABBITMQ_EXCHANGE_NAME = "rabbitmq.exchange.name";
+    String RABBITMQ_EXCHANGE_TYPE = "rabbitmq.exchange.type";
+    String RABBITMQ_SERVERS = "rabbitmq.servers";
+    String RABBITMQ_PORT = "rabbitmq.port";
+    String RABBITMQ_USERNAME = "rabbitmq.username";
+    String RABBITMQ_PASSWORD = "rabbitmq.password";
+    String RABBITMQ_VHOST = "rabbitmq.vhost";
+    String RABBITMQ_CONSUMER_PREFIX = "rabbitmq.consumer.prefix";
+    String RABBITMQ_BINDING_PREFIX = "rabbitmq.binding.prefix";
+
+
 }

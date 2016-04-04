@@ -44,11 +44,16 @@ public class PerfDataStream implements DataStream {
 
     @Override
     public void open() throws Exception {
-        log.info("Start publishing data to kafka");
+        log.info("Start publishing data to broker");
         int i = count;
         long sleep = ConfigReader.getLongProperty(PUBLISHER_MESSAGE_DELAY, 100);
         long time = System.nanoTime();
-        String chunk = data.substring(0, data.length() - String.valueOf(time).length() + 1);
+        String chunk;
+        if (data.length() >= String.valueOf(time).length()) {
+            chunk = data.substring(0, data.length() - String.valueOf(time).length());
+        } else {
+            chunk = data;
+        }
         if (isDebug) {
             log.info("Data size : {}, chunk size : {}, thread sleep time ; {}", data.length(), chunk.length(), sleep);
         }
@@ -66,7 +71,7 @@ public class PerfDataStream implements DataStream {
             Thread.sleep(sleep);
             i--;
         }
-        log.info("Completed message publishing to kafka");
+        log.info("Completed message publishing to broker.");
     }
 
     @Override
@@ -81,6 +86,6 @@ public class PerfDataStream implements DataStream {
 
     @Override
     public void close() throws Exception {
-
+        publisher.close();
     }
 }

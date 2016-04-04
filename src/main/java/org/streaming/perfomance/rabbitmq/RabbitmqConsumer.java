@@ -77,7 +77,11 @@ public class RabbitmqConsumer implements Consumer{
         if (isDebug) {
             log.info("Consumed message length : {}", l);
         }
-        return Long.valueOf(message.substring(l - 16, l));
+        if (l >= 15) {
+            return Long.valueOf(message.substring(l - 15, l));
+        } else {
+            return Long.valueOf(message);
+        }
     }
 
     @Override
@@ -94,6 +98,7 @@ public class RabbitmqConsumer implements Consumer{
         try {
             channel.close();
             connection.close();
+            log.info("Rabbitmq consumer {} closed channel and connection", consumerId);
         } catch (IOException e) {
             log.error("Error closing resources", e);
         }

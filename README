@@ -50,5 +50,13 @@ Zookeeper Cluster
 Storm Cluster.
 
 
-RabbitMQ Cluster.
-
+#RabbitMQ Cluster.
+sudo service rabbitmq-server start
+sudo service rabbitmq-server stop
+sudo -u rabbitmq /usr/sbin/rabbitmqctl status
+sudo -u rabbitmq /usr/sbin/rabbitmqctl start_app
+sudo -u rabbitmq /usr/sbin/rabbitmqctl stop_app
+sudo -u rabbitmq /usr/sbin/rabbitmqctl cluster_status
+sudo -u rabbitmq /usr/sbin/rabbitmqctl join_cluster rabbit@rabbit1
+sudo -u rabbitmq /usr/sbin/rabbitmqctl reset
+sudo -u rabbitmq /usr/sbin/rabbitmqctl forget_cluster_node rabbit@rabbit1

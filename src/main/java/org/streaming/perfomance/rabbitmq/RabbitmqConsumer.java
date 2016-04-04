@@ -77,8 +77,8 @@ public class RabbitmqConsumer implements Consumer{
         if (isDebug) {
             log.info("Consumed message length : {}", l);
         }
-        if (l >= 15) {
-            return Long.valueOf(message.substring(l - 15, l));
+        if (l > 15) {
+            return Long.valueOf(message.substring(l - 16, l));
         } else {
             return Long.valueOf(message);
         }

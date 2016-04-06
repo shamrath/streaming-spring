@@ -45,10 +45,16 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
 
     private Long getProduceTime(String message) {
         int l = message.length();
-        if (isDebug) {
-            log.info("Consumed message length : {}", l);
+        String sTime;
+        if (l > 16) {
+            sTime = message.substring(l - 16, l);
+        } else {
+            sTime = message;
         }
-        return Long.valueOf(message.substring(l - 16, l));
+        if (isDebug) {
+            log.info("Consumed message length : {}, prodTime : {} ", l, sTime);
+        }
+        return Long.valueOf(sTime);
     }
 
     @Override

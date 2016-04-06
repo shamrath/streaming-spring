@@ -46,8 +46,8 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
     private Long getProduceTime(String message) {
         int l = message.length();
         String sTime;
-        if (l > 16) {
-            sTime = message.substring(l - 16, l);
+        if (l > 14) {
+            sTime = message.substring(l - 14, l);
         } else {
             sTime = message;
         }

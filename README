@@ -23,11 +23,11 @@ This is readme file of Streaming Spring Project.
 set kafka retention.ms -> ./bin/kafka-topics.sh --zookeeper localhost:2181 --alter --topic test --config retention.ms=1000
 remove kafka retention.ms -> ./bin/kafka-topics.sh --zookeeper localhost:2181 --alter --topic test --delete-config retention.ms
 
-./bin/kafka-topics.sh --zookeeper j-051:2181,j-052:2181,j-053:2181 --describe --topic test
-./bin/kafka-topics.sh --zookeeper j-051:2181,j-052:2181,j-053:2181 --alter --topic test replication-factor 2
-./bin/kafka-topics.sh --zookeeper j-051:2181,j-052:2181,j-053:2181 --alter --topic test partitions 3
-./bin/kafka-topics.sh --zookeeper j-051:2181,j-052:2181,j-053:2181 --create --topic test --partitions 3 --replication-factor 2
-./bin/kafka-topics.sh --zookeeper j-051:2181,j-052:2181,j-053:2181 --delete --topic test
+./bin/kafka-topics.sh --zookeeper j-078:2181,j-079:2181,j-080:2181 --describe --topic test
+./bin/kafka-topics.sh --zookeeper j-078:2181,j-079:2181,j-080:2181 --alter --topic test replication-factor 2
+./bin/kafka-topics.sh --zookeeper j-078:2181,j-079:2181,j-080:2181 --alter --topic test partitions 3
+./bin/kafka-topics.sh --zookeeper j-078:2181,j-079:2181,j-080:2181 --create --topic test --partitions 3 --replication-factor 2
+./bin/kafka-topics.sh --zookeeper j-078:2181,j-079:2181,j-080:2181 --delete --topic test
 
 Additional details,
 Storm-kafka spout = https://github.com/apache/storm/tree/master/external/storm-kafka
@@ -60,3 +60,15 @@ sudo -u rabbitmq /usr/sbin/rabbitmqctl cluster_status
 sudo -u rabbitmq /usr/sbin/rabbitmqctl join_cluster rabbit@rabbit1
 sudo -u rabbitmq /usr/sbin/rabbitmqctl reset
 sudo -u rabbitmq /usr/sbin/rabbitmqctl forget_cluster_node rabbit@rabbit1
+
+
+## High Availability test
+sudo rabbitmqctl add_user rabbit rabbit123
+sudo rabbitmqctl set_user_tags rabbit administrator
+sudo rabbitmqctl add_vhost perf
+sudo rabbitmqctl set_permissions -p perf rabbit ".*" ".*" ".*"
+
+sudo rabbitmqctl set_policy -p perf ha-two "^consumer" '{"ha-mode":"exactly","ha-params":2,"ha-sync-mode":"automatic"}'
+sudo rabbitmqctl list_policies -p perf
+sudo rabbitmqctl clear_policy -p perf ha-two
+sudo rabbitmqctl list_queues -p perf name policy pid  slave_pids

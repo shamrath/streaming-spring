@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.streaming.perfomance.ConfigReader;
 import org.streaming.perfomance.Consumer;
+import org.streaming.perfomance.Utils;
 
 import java.io.IOException;
 
@@ -60,7 +61,7 @@ public class RabbitmqConsumer implements Consumer{
                 String message = new String(body, "UTF-8");
 //                System.out.println(" [x] Received '" + envelope.getRoutingKey() + "':'" + message + "'");
                 long consumedTime = System.nanoTime();
-                Long produceTime = getProduceTime(message);
+                Long produceTime = Utils.getProduceTime(message, consumedTime);
                 long diff = consumedTime - produceTime;
                 log.info("Consumer:{} , Bind :{} ,Offset:{} :- {} = {}",
                         String.valueOf(consumerId),
@@ -70,18 +71,6 @@ public class RabbitmqConsumer implements Consumer{
 
             }
         };
-    }
-
-    private Long getProduceTime(String message) {
-        int l = message.length();
-        if (isDebug) {
-            log.info("Consumed message length : {}", l);
-        }
-        if (l > 15) {
-            return Long.valueOf(message.substring(l - 14, l));
-        } else {
-            return Long.valueOf(message);
-        }
     }
 
     @Override

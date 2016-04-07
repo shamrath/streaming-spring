@@ -35,12 +35,12 @@ public class ConfigReader {
 
     public static Properties loadProperties(boolean originalConfig) throws IOException {
         if (props == null) {
-            synchronized (Util.class) {
+            synchronized (ConfigReader.class) {
                 if (props == null){
                     props = new Properties();
                     InputStream input;
                     if (originalConfig) {
-                        input = Util.class.getClassLoader().getResourceAsStream("config.properties");
+                        input = ConfigReader.class.getClassLoader().getResourceAsStream("config.properties");
                     } else {
                         input = new FileInputStream("/Users/syodage/Projects/streaming-spring/src/main/resources/config.properties");
                     }

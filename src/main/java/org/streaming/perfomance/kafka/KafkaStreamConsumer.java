@@ -7,8 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.streaming.perfomance.ConfigReader;
 import org.streaming.perfomance.Consumer;
-
-import java.util.Calendar;
+import org.streaming.perfomance.Utils;
 
 /**
  * Created by syodage on 1/26/16.
@@ -31,7 +30,7 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
         while (it.hasNext()) {
             MessageAndMetadata<String, String> next = it.next();
             long consumedTime = System.nanoTime();
-            Long produceTime = getProduceTime(next.message());
+            Long produceTime = Utils.getProduceTime(next.message(), consumedTime);
             long diff = consumedTime - produceTime;
             log.info("Consumer:{} ,Partition:{} ,Offset:{} :- {} = {}",
                     String.valueOf(consumerNumber),
@@ -43,19 +42,7 @@ public class KafkaStreamConsumer implements Consumer, Runnable{
         log.info("Consumer {} shutdown", String.valueOf(consumerNumber));
     }
 
-    private Long getProduceTime(String message) {
-        int l = message.length();
-        String sTime;
-        if (l > 14) {
-            sTime = message.substring(l - 14, l);
-        } else {
-            sTime = message;
-        }
-        if (isDebug) {
-            log.info("Consumed message length : {}, prodTime : {} ", l, sTime);
-        }
-        return Long.valueOf(sTime);
-    }
+
 
     @Override
     public void close() {

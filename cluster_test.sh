@@ -19,9 +19,9 @@ USERHOME=`cd ~ && pwd`
 KAFKA_CLUSTER_HOME="$USERHOME/workspace/kafka-cluster"
 ZK_CLUSTER_HOME="$USERHOME/workspace/zookeeper-cluster"
 
-ZK_1_HOME="$ZK_CLUSTER_HOME/1_zookeeper-3.4.6/"
-ZK_2_HOME="$ZK_CLUSTER_HOME/2_zookeeper-3.4.6/"
-ZK_3_HOME="$ZK_CLUSTER_HOME/3_zookeeper-3.4.6/"
+ZK_1_HOME="$ZK_CLUSTER_HOME/1_zookeeper-3.4.6"
+ZK_2_HOME="$ZK_CLUSTER_HOME/2_zookeeper-3.4.6"
+ZK_3_HOME="$ZK_CLUSTER_HOME/3_zookeeper-3.4.6"
 
 KAFKA_1_HOME="$KAFKA_CLUSTER_HOME/1_kafka_2.10-0.8.2.2"
 KAFKA_2_HOME="$KAFKA_CLUSTER_HOME/2_kafka_2.10-0.8.2.2"
@@ -31,6 +31,11 @@ KAFKA_3_HOME="$KAFKA_CLUSTER_HOME/3_kafka_2.10-0.8.2.2"
 hosts[0]=j-078
 hosts[1]=j-079
 hosts[2]=j-080
+hosts[3]=j-081
+hosts[4]=j-082
+hosts[5]=j-083
+hosts[6]=j-084
+
 # read inputs
 
 #pass user inputs
@@ -89,11 +94,11 @@ print_help(){
 
 # start zk Cluster
 start_zk_cluster() {
-    ssh ${hosts[0]} && cd $ZK_1_HOME/bin/zkServer.sh start
+    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
     sleep 2
-    ssh ${hosts[1]} && cd $ZK_2_HOME/bin/zkServer.sh start
+    ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh start"
     sleep 2
-    ssh ${hosts[2]} && cd $ZK_3_HOME/bin/zkServer.sh start
+    ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
     sleep 2
     zkClusterStart=0
     return 0
@@ -106,6 +111,14 @@ check_zk_cluster() {
 
 # stop zk cluster
 stop_zk_cluster() {
+   echo -n "Stopping zk 1 .."
+   ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
+   sleep 2
+   echo "STOPPED"
+   ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh stop"
+   sleep 2
+   ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh stop"
+   sleep 2
    return 0
 }
 #start kafka cluster
@@ -152,6 +165,10 @@ stop_rabbitmq_cluster() {
 #run consumers
 #run producers
 
+test () {
+    ssh ${hosts[]
+
+}
 # start testing
 start(){
     while [ $_continue -eq 0 ]
@@ -161,7 +178,8 @@ start(){
         read val opt
         case $val in
             "kk") start_kafka_cluster ;;
-            "zk") start_zk_cluster;;
+            "zk") stop_zk_cluster
+                  start_zk_cluster;;
             "help") print_help $opt;;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"

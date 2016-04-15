@@ -94,18 +94,23 @@ print_help(){
 
 # start zk Cluster
 start_zk_cluster() {
+    echo "--------------------------------------------------------------------"
     echo "Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}"
     ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
     sleep 2
+    echo ""
     ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh start"
     sleep 2
+    echo ""
     ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
     sleep 2
+    echo ""
     zkClusterStart=0
     return 0
 }
 #check health of zk cluster
 check_zk_cluster() {
+    echo "--------------------------------------------------------------------"
     stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
         echo -n "${hosts[3]} is running, "
@@ -124,20 +129,23 @@ check_zk_cluster() {
     else
         echo "${hosts[5]} is not running"
     fi
-    echo  "Status returns :$stat:"
-    echo "Return $zkClusterStart"
+    sleep 2
     return $zkClusterStart
 }
 
 # stop zk cluster
 stop_zk_cluster() {
+   echo "--------------------------------------------------------------------"
    echo "Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}"
    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
    sleep 2
+   echo ""
    ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh stop"
    sleep 2
+   echo ""
    ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh stop"
    sleep 2
+   echo ""
    return 0
 }
 #start kafka cluster
@@ -188,7 +196,7 @@ stop_rabbitmq_cluster() {
 start(){
     while [ $_continue -eq 0 ]
     do
-        echo "Test ${hosts[1]}"
+        echo "--------------------------------------------------------------------"
         echo -e -n "\nCommand to execute : "
         read val opt
         case $val in

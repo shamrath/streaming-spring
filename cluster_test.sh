@@ -9,26 +9,56 @@ _continue=0
 #pass user inputs
 
 # print help
-print_help(){
-     echo "***************************"
+print_help_kafka () {
+     echo "**************kafka commands*************"
      echo "[kk]     start kafka cluster"
      echo "[ckk]    check kafka cluster"
      echo "[skk]    stop kafka cluster"
+}
+
+print_help_zk () {
+     echo "**************Zookeeper commands*************"
      echo "[zk]     start zookeeper cluster"
      echo "[czk]    check zookeeper cluster"
      echo "[szk]    stop zookeeper cluster"
+}
+
+print_help_rabbit () {
+     echo "**************RabbitMQ commands*************"
      echo "[rr]     start rabbitmq cluster"
      echo "[crr]    check rabbitmq cluster"
      echo "[srr]    stop rabbitmq cluster"
+}
+
+print_help_client (){
+     echo "**************Client commands*************"
      echo "[skp]    start kafka publisher"
      echo "[skc]    start kafka consumer"
      echo "[srp]    start rabbitmq publisher"
      echo "[src]    stop rabbitmq consumer"
+}
+
+print_help_all () {
+    print_help_kafka
+    print_help_rabbit
+    print_help_zk
+    print_help_client
+}
+
+print_help(){
+     case $1 in
+        "kafka" ) print_help_kafka ;;
+        "rabbit" ) print_help_rabbit ;;
+        "zk") print_help_zk ;;
+        "client" ) print_help_client ;;
+        *) print_help_all;;
+     esac
+
+     echo "**************Main Commands*************"
      echo "[help]   print this help menu"
      echo "[exit]   exit test"
-     echo "***************************"
-
 }
+
 
 # start zk Cluster
 start_zk_cluster() {
@@ -93,12 +123,12 @@ stop_rabbitmq_cluster() {
 start(){
     while [ $_continue -eq 0 ]
     do
-        echo "Command to execute : "
-        read val
+        echo -e -n "\nCommand to execute : "
+        read val opt
         case $val in
             "kk") start_kafka_cluster ;;
             "zk") start_zk_cluster;;
-            "help") print_help;;
+            "help") print_help $opt;;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"
         esac
@@ -110,6 +140,8 @@ ctrl_c (){
     echo "Exit from testing, Bye"
     exit 0
 }
+
+# dispatch CTRL+C to ctrl_c function using trap
 trap ctrl_c 2
 
 start

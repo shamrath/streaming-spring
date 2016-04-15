@@ -86,6 +86,7 @@ print_help(){
      esac
 
      echo "**************Main Commands*************"
+     echo "[kafkaTest] start kafka test"
      echo "[help]   print this help menu"
      echo "[exit]   exit test"
 }
@@ -126,6 +127,13 @@ stop_zk_cluster() {
       echo "Zookeeper cluster already in down state"
       return 0
    fi
+
+   check_kafka_cluster
+   if [ $? -eq 0 ] ; then
+      echo "Please shutdown Kafka cluster first"
+      return 1
+   fi
+
    echo "------------------Stopping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
    sleep 2
@@ -252,7 +260,72 @@ start_rabbitmq_cluster(){
 
 # build the project
 #run consumers
-#run producers
+start_consumer() {
+    output=$1
+    shift
+    ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@" > ${output}
+}
+
+#run producer
+start_producer() {
+    ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@"
+}
+
+create_kafka_topic() {
+    if [ $# -lt 1 ] ; then
+        echo "Replicatoin Factor is required, but not provided"
+        return 1
+    fi
+
+    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+        --delete --topic test
+    sleep 2
+    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+        -create --topic test --partitions 3 --replication-factor $1
+    sleep
+    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+        --describe --topic test
+}
+
+kafka_test(){
+   check_zk_cluster
+   if [ $? -ne 0 ] ; then
+        start_zk_cluster
+        if [ $? -ne 0 ] ; then
+            echo "Test failed ... Couldn't start Zookeeper cluster"
+            return 1
+        fi
+   fi
+
+   check_kafka_cluster
+   if [ $? -ne 0 ] ; then
+        start_kafka_cluster
+        if [ $? -ne 0 ] ; then
+            echo "Test failed ... Couldn't start Kafka cluster"
+            return 1
+        fi
+   fi
+
+    # create kafka topic
+    create_kafka_topic 1
+    if [ $? -ne 0 ] ; then
+        echo "Kafka topic creation failed"
+        return 1
+    fi
+
+   if [ -f $USERHOME/testdata/sample.out ] ; then
+        rm $USERHOME/testdata/sample.out
+   fi
+
+   start_consumer $USERHOME/testdata/sample.out -kc -n 3 &
+   cPID=$!
+   start_producer -kp -d $SCRHOME/data/8k.txt -n 1000
+
+   kill $cPID
+   echo "Kafka test finished"
+   return 0
+
+}
 
 # start testing
 start(){
@@ -268,6 +341,7 @@ start(){
             "kk") start_kafka_cluster ;;
             "skk" ) stop_kafka_cluster;;
             "ckk" ) check_kafka_cluster;;
+            "kt" ) kafka_test;;
             "help") print_help $opt;;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"

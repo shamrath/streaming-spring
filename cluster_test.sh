@@ -262,10 +262,12 @@ start(){
         echo -e -n "Command to execute : "
         read val opt
         case $val in
-            "kk") start_kafka_cluster ;;
             "zk") start_zk_cluster;;
             "szk" ) stop_zk_cluster;;
             "czk" ) check_zk_cluster;;
+            "kk") start_kafka_cluster ;;
+            "skk" ) stop_kafka_cluster;;
+            "ckk" ) check_kafka_cluster;;
             "help") print_help $opt;;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"

@@ -10,7 +10,6 @@ fi
 
 
 # Initialize properties
-zkClusterStart=1
 kafkaClusterStart=1
 _continue=0
 
@@ -91,6 +90,35 @@ print_help(){
      echo "[exit]   exit test"
 }
 
+#check health of zk cluster
+check_zk_cluster() {
+    clusterStatus=1
+    echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
+    stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
+    if [[ $stat == *QuorumPeerMain* ]] ; then
+        echo -n "${hosts[3]} is running, "
+        clusterStatus=0
+    else
+        echo -n "${hosts[3]} is not running, "
+    fi
+    stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
+    if [[ $stat == *QuorumPeerMain* ]] ; then
+        echo -n "${hosts[4]} is running, "
+        clusterStatus=0
+    else
+        echo -n "${hosts[4]} is not running, "
+    fi
+    stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
+    if [[ $stat == *QuorumPeerMain* ]] ; then
+        echo "${hosts[5]} is running"
+        clusterStatus=0
+    else
+        echo "${hosts[5]} is not running"
+    fi
+    sleep 2
+    return $clusterStatus
+}
+
 # stop zk cluster
 stop_zk_cluster() {
    check_zk_cluster
@@ -98,7 +126,7 @@ stop_zk_cluster() {
       echo "Zookeeper cluster already in down state"
       return 0
    fi
-   echo "------------------Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
+   echo "------------------Stopping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
    sleep 2
    echo ""
@@ -109,35 +137,6 @@ stop_zk_cluster() {
    sleep 2
    echo ""
    return 0
-}
-
-#check health of zk cluster
-check_zk_cluster() {
-    zkClusterStart=1
-    echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
-    stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${hosts[3]} is running, "
-        zkClusterStart=0
-    else
-        echo -n "${hosts[3]} is not running, "
-    fi
-    stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${hosts[4]} is running, "
-        zkClusterStart=0
-    else
-        echo -n "${hosts[4]} is not running, "
-    fi
-    stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo "${hosts[5]} is running"
-        zkClusterStart=0
-    else
-        echo "${hosts[5]} is not running"
-    fi
-    sleep 2
-    return $zkClusterStart
 }
 
 # start zk Cluster
@@ -156,33 +155,84 @@ start_zk_cluster() {
     ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
     sleep 2
     echo ""
-    zkClusterStart=0
     return 0
 }
 
 #check health of kafka cluster
 check_kafka_cluster(){
-    return 0
+    clusterStatus=1
+    echo "----------------------------Checking Kafka Cluster Status----------------------------------------"
+    stat=`ssh ${hosts[0]} "ps ax | grep kafka | grep -v grep"`
+    if [[ $stat == *kafka* ]] ; then
+        echo -n "${hosts[0]} is running, "
+        clusterStatus=0
+    else
+        echo -n "${hosts[0]} is not running, "
+    fi
+    stat=`ssh ${hosts[1]} "ps ax | grep kafka | grep -v grep"`
+    if [[ $stat == *kafka* ]] ; then
+        echo -n "${hosts[1]} is running, "
+        clusterStatus=0
+    else
+        echo -n "${hosts[1]} is not running, "
+    fi
+    stat=`ssh ${hosts[2]} "ps ax | grep kafka | grep -v grep"`
+    if [[ $stat == *kafka* ]] ; then
+        echo -n "${hosts[2]} is running, "
+        clusterStatus=0
+    else
+        echo -n "${hosts[2]} is not running, "
+    fi
+    sleep 2
+    return $clusterStatus
 }
 
 #stop kafka cluster
 stop_kafka_cluster() {
+    check_kafka_cluster
+    if [ $? -ne 0 ] ; then
+        echo "Kafka cluster already in down state"
+         return 0
+    fi
+
+    echo "------------------Stopping Kafka cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}-------------------"
+    ssh ${hosts[0]} "$KAFKA_1_HOME/bin/kafka-server-stop.sh"
+    sleep 2
+    echo ""
+    ssh ${hosts[1]} "$KAFKA_2_HOME/bin/kafka-server-stop.sh"
+    sleep 2
+    echo ""
+    ssh ${hosts[2]} "$KAFKA_3_HOME/bin/kafka-server-stop.sh"
+    sleep 2
+    echo ""
     return 0
 }
 
 #start kafka cluster
 start_kafka_cluster() {
     #check zk cluster has been started
-    if [ $zkClusterStart -ne 0 ]; then
-       echo "please start zk cluster first and then try"
-       return 1
-    elif ! check_zk_cluster; then
-       echo "Zookeeper cluster need to reset before start kafka cluster"
-       return 1
-    else
-        echo "started kafka cluster"
-        return 0
+    check_zk_cluster
+    if [ $? -ne 0 ] ; then
+        echo "Start zookeeper cluster first"
+        return 1
     fi
+
+    check_kafka_cluster
+    if [ $? -eq 0 ] ; then
+        stop_kafka_cluster
+    fi
+
+    echo "------------------Starting Kafka cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}------------------"
+    ssh ${hosts[0]} "$KAFKA_1_HOME/bin/kafka-server-start.sh -daemon $KAFKA_1_HOME/config/server.properties"
+    sleep 2
+    echo ""
+    ssh ${hosts[1]} "$KAFKA_2_HOME/bin/kafka-server-start.sh -daemon $KAFKA_2_HOME/config/server.properties"
+    sleep 2
+    echo ""
+    ssh ${hosts[2]} "$KAFKA_3_HOME/bin/kafka-server-start.sh -daemon $KAFKA_3_HOME/config/server.properties"
+    sleep 2
+    echo ""
+    return 0
 }
 
 #check health of rabbitmq cluster
@@ -227,14 +277,23 @@ start(){
 ctrl_c (){
     echo "Exit from testing"
     check_zk_cluster
-    redval=$?
-    if [ $zkClus -eq 0 ] ; then
+    if [ $? -eq 0 ] ; then
         echo -n "Do you want to shutdown zk cluster [y or n]? "
         read yorn
         if [[ $yorn == y ]] ; then
             stop_zk_cluster
         fi
     fi
+
+    check_kafka_cluster
+    if [ $? -eq 0 ] ; then
+        echo -n "Do you want to shutdown Kafka cluster [y or n]? "
+        read yorn
+        if [[ $yorn == y ]] ; then
+            stop_kafka_cluster
+        fi
+    fi
+
     echo "Bye,  see you later"
     exit 0
 }

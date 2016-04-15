@@ -107,24 +107,24 @@ start_zk_cluster() {
 #check health of zk cluster
 check_zk_cluster() {
     stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
-    if [ $stat == *QuorumPeerMain* ] ; then
+    if [[ $stat == *QuorumPeerMain* ]] ; then
         echo -n "${hosts[3]} is running, "
     else
         echo -n "${hosts[3]} is not running, "
     fi
     stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
-    if [ $stat == *QuorumPeerMain* ] ; then
+    if [[ $stat == *QuorumPeerMain* ]] ; then
         echo -n "${hosts[4]} is running, "
     else
         echo -n "${hosts[4]} is not running, "
     fi
     stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
-    if [ $stat == *QuorumPeerMain* ] ; then
+    if [[ $stat == *QuorumPeerMain* ]] ; then
         echo "${hosts[5]} is running"
     else
         echo "${hosts[5]} is not running"
     fi
-    echo  "Status returns $stat"
+    echo  "Status returns :$stat:"
     echo "Return $zkClusterStart"
     return $zkClusterStart
 }

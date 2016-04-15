@@ -1,9 +1,36 @@
 #!/usr/bin/env bash
 
+# This code compatible with bash 4
+bashVersion=$BASH_VERSION
+echo $bashVersion
+if [[ $bashVersion != 4* ]] ; then
+    echo "Bash version 4+ is required to run this script"
+    exit 0
+fi
+
+
 # Initialize properties
 zkClusterStart=1
 kafkaClusterStart=1
 _continue=0
+
+SCRHOME=$PWD
+USERHOME=`cd ~ && pwd`
+KAFKA_CLUSTER_HOME="$USERHOME/workspace/kafka-cluster"
+ZK_CLUSTER_HOME="$USERHOME/workspace/zookeeper-cluster"
+
+ZK_1_HOME="$ZK_CLUSTER_HOME/1_zookeeper-3.4.6/"
+ZK_2_HOME="$ZK_CLUSTER_HOME/2_zookeeper-3.4.6/"
+ZK_3_HOME="$ZK_CLUSTER_HOME/3_zookeeper-3.4.6/"
+
+KAFKA_1_HOME="$KAFKA_CLUSTER_HOME/1_kafka_2.10-0.8.2.2"
+KAFKA_2_HOME="$KAFKA_CLUSTER_HOME/2_kafka_2.10-0.8.2.2"
+KAFKA_3_HOME="$KAFKA_CLUSTER_HOME/3_kafka_2.10-0.8.2.2"
+
+#readarray hosts < data.txt
+hosts[0]=j-078
+hosts[1]=j-079
+hosts[2]=j-080
 # read inputs
 
 #pass user inputs
@@ -62,6 +89,12 @@ print_help(){
 
 # start zk Cluster
 start_zk_cluster() {
+    ssh ${hosts[0]} && cd $ZK_1_HOME/bin/zkServer.sh start
+    sleep 2
+    ssh ${hosts[1]} && cd $ZK_2_HOME/bin/zkServer.sh start
+    sleep 2
+    ssh ${hosts[2]} && cd $ZK_3_HOME/bin/zkServer.sh start
+    sleep 2
     zkClusterStart=0
     return 0
 }
@@ -123,6 +156,7 @@ stop_rabbitmq_cluster() {
 start(){
     while [ $_continue -eq 0 ]
     do
+        echo "Test ${hosts[1]}"
         echo -e -n "\nCommand to execute : "
         read val opt
         case $val in

@@ -186,6 +186,7 @@ start(){
             "kk") start_kafka_cluster ;;
             "zk") stop_zk_cluster
                   start_zk_cluster;;
+            "szk" ) stop_zk_cluster;;
             "help") print_help $opt;;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"

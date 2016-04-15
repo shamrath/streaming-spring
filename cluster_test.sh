@@ -106,6 +106,8 @@ start_zk_cluster() {
 }
 #check health of zk cluster
 check_zk_cluster() {
+    stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
+    echo  "Status returns $stat"
     echo "Return $zkClusterStart"
     return $zkClusterStart
 }
@@ -186,7 +188,15 @@ start(){
 }
 
 ctrl_c (){
-    echo "Exit from testing, Bye"
+    echo "Exit from testing"
+    if [ $zkClusterStart -eq 0 ] ; then
+        echo -n "Do you want to shutdown zk cluster [y or n]? "
+        read  yorn
+        if [ yorn == y ] ; then
+            stop_zk_cluster
+        fi
+    fi
+    echo "Bye,  see you later"
     exit 0
 }
 

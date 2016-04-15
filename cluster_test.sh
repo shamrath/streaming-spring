@@ -175,10 +175,6 @@ stop_rabbitmq_cluster() {
 #run consumers
 #run producers
 
-test () {
-    ssh ${hosts[]
-
-}
 # start testing
 start(){
     while [ $_continue -eq 0 ]

@@ -94,12 +94,18 @@ print_help(){
 
 # start zk Cluster
 start_zk_cluster() {
+    echo -n "Starting zk1 ...."
     ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
     sleep 2
+    echo "STARTED"
+    echo -n "Starting zk1 ...."
     ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh start"
     sleep 2
+    echo "STARTED"
+    echo -n "Starting zk1 ...."
     ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
     sleep 2
+    echo "STARTED"
     zkClusterStart=0
     return 0
 }
@@ -115,10 +121,14 @@ stop_zk_cluster() {
    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
    sleep 2
    echo "STOPPED"
+   echo -n "Stopping zk 2 .."
    ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh stop"
    sleep 2
+   echo "STOPPED"
+   echo -n "Stopping zk 3 .."
    ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh stop"
    sleep 2
+   echo "STOPPED"
    return 0
 }
 #start kafka cluster

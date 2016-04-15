@@ -94,8 +94,12 @@ print_help(){
 
 # start zk Cluster
 start_zk_cluster() {
-    echo "--------------------------------------------------------------------"
-    echo "Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}"
+    check_zk_cluster
+    if [ $? -eq 0 ] ; then
+        stop_zk_cluster
+    fi
+
+    echo "------------------Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}------------------"
     ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
     sleep 2
     echo ""
@@ -110,22 +114,26 @@ start_zk_cluster() {
 }
 #check health of zk cluster
 check_zk_cluster() {
-    echo "--------------------------------------------------------------------"
+    zkClusterStart=1
+    echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
     stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
         echo -n "${hosts[3]} is running, "
+        zkClusterStart=0
     else
         echo -n "${hosts[3]} is not running, "
     fi
     stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
         echo -n "${hosts[4]} is running, "
+        zkClusterStart=0
     else
         echo -n "${hosts[4]} is not running, "
     fi
     stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
         echo "${hosts[5]} is running"
+        zkClusterStart=0
     else
         echo "${hosts[5]} is not running"
     fi
@@ -135,8 +143,12 @@ check_zk_cluster() {
 
 # stop zk cluster
 stop_zk_cluster() {
-   echo "--------------------------------------------------------------------"
-   echo "Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}"
+   check_zk_cluster
+   if [ $? -ne 0 ] ; then
+      echo "Zookeeper cluster already in down state"
+      return 0
+   fi
+   echo "------------------Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
    sleep 2
    echo ""
@@ -197,12 +209,11 @@ start(){
     while [ $_continue -eq 0 ]
     do
         echo "--------------------------------------------------------------------"
-        echo -e -n "\nCommand to execute : "
+        echo -e -n "Command to execute : "
         read val opt
         case $val in
             "kk") start_kafka_cluster ;;
-            "zk") stop_zk_cluster
-                  start_zk_cluster;;
+            "zk") start_zk_cluster;;
             "szk" ) stop_zk_cluster;;
             "czk" ) check_zk_cluster;;
             "help") print_help $opt;;
@@ -215,10 +226,12 @@ start(){
 
 ctrl_c (){
     echo "Exit from testing"
-    if [ $zkClusterStart -eq 0 ] ; then
+    check_zk_cluster
+    redval=$?
+    if [ $zkClus -eq 0 ] ; then
         echo -n "Do you want to shutdown zk cluster [y or n]? "
-        read  yorn
-        if [ yorn == y ] ; then
+        read yorn
+        if [[ $yorn == y ]] ; then
             stop_zk_cluster
         fi
     fi

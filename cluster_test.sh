@@ -91,27 +91,26 @@ print_help(){
      echo "[exit]   exit test"
 }
 
-
-# start zk Cluster
-start_zk_cluster() {
-    check_zk_cluster
-    if [ $? -eq 0 ] ; then
-        stop_zk_cluster
-    fi
-
-    echo "------------------Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}------------------"
-    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
-    sleep 2
-    echo ""
-    ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh start"
-    sleep 2
-    echo ""
-    ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
-    sleep 2
-    echo ""
-    zkClusterStart=0
-    return 0
+# stop zk cluster
+stop_zk_cluster() {
+   check_zk_cluster
+   if [ $? -ne 0 ] ; then
+      echo "Zookeeper cluster already in down state"
+      return 0
+   fi
+   echo "------------------Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
+   ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
+   sleep 2
+   echo ""
+   ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh stop"
+   sleep 2
+   echo ""
+   ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh stop"
+   sleep 2
+   echo ""
+   return 0
 }
+
 #check health of zk cluster
 check_zk_cluster() {
     zkClusterStart=1
@@ -141,25 +140,36 @@ check_zk_cluster() {
     return $zkClusterStart
 }
 
-# stop zk cluster
-stop_zk_cluster() {
-   check_zk_cluster
-   if [ $? -ne 0 ] ; then
-      echo "Zookeeper cluster already in down state"
-      return 0
-   fi
-   echo "------------------Stoping Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}-------------------"
-   ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh stop"
-   sleep 2
-   echo ""
-   ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh stop"
-   sleep 2
-   echo ""
-   ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh stop"
-   sleep 2
-   echo ""
-   return 0
+# start zk Cluster
+start_zk_cluster() {
+    check_zk_cluster
+    if [ $? -eq 0 ] ; then
+        stop_zk_cluster
+    fi
+    echo "------------------Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}------------------"
+    ssh ${hosts[3]} "$ZK_1_HOME/bin/zkServer.sh start"
+    sleep 2
+    echo ""
+    ssh ${hosts[4]} "$ZK_2_HOME/bin/zkServer.sh start"
+    sleep 2
+    echo ""
+    ssh ${hosts[5]} "$ZK_3_HOME/bin/zkServer.sh start"
+    sleep 2
+    echo ""
+    zkClusterStart=0
+    return 0
 }
+
+#check health of kafka cluster
+check_kafka_cluster(){
+    return 0
+}
+
+#stop kafka cluster
+stop_kafka_cluster() {
+    return 0
+}
+
 #start kafka cluster
 start_kafka_cluster() {
     #check zk cluster has been started
@@ -175,21 +185,6 @@ start_kafka_cluster() {
     fi
 }
 
-#check health of kafka cluster
-check_kafka_cluster(){
-    return 0
-}
-
-#stop kafka cluster
-stop_kafka_cluster() {
-    return 0
-}
-
-#start rabbitmqCluster
-start_rabbitmq_cluster(){
-    return 0
-}
-
 #check health of rabbitmq cluster
 check_rabbitmq_cluster(){
     return 0
@@ -197,6 +192,11 @@ check_rabbitmq_cluster(){
 
 #stop rabbitmq cluster
 stop_rabbitmq_cluster() {
+    return 0
+}
+
+#start rabbitmqCluster
+start_rabbitmq_cluster(){
     return 0
 }
 

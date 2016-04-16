@@ -266,7 +266,7 @@ start_rabbitmq_cluster(){
 start_consumer() {
     output=$1
     shift
-    ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@" > ${output}
+    ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@" > $output
 }
 
 #run producer
@@ -299,6 +299,7 @@ kafka_test(){
         echo "Stop Test"
         return 0
     fi
+    echo "data file $1 messages $2"
 
    check_zk_cluster
    if [ $? -ne 0 ] ; then
@@ -322,23 +323,22 @@ kafka_test(){
 
     for i in "${inputs[@]}"
     do
-        for j in 1 2 ; do
+        for j in 1 2
+        do
+            # create kafka topic
+            create_kafka_topic ${j}
+            if [ $? -ne 0 ] ; then
+                echo "Kafka topic creation failed"
+                return 1
+            fi
 
-        # create kafka topic
-        create_kafka_topic ${j}
-        if [ $? -ne 0 ] ; then
-            echo "Kafka topic creation failed"
-            return 1
-        fi
-
-        if [ -f "$USERHOME/testdata/${i}_rep${j}.out" ] ; then
-            rm "$USERHOME/testdata/${i}_rep${j}.out"
-        fi
-        start_consumer "$USERHOME/testdata/${i}_rep${j}.out" -kc -n 3 &
-        cPID=$!
-        start_producer -kp -d "$SCRHOME/data/${i}.txt" -n $2
-        kill ${cPID}
-
+            if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
+                rm $USERHOME/testdata/${i}_rep${j}.out
+            fi
+            start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
+            cPID=$!
+            start_producer -kp -d $SCRHOME/data/${i}.txt -n $2
+            kill ${cPID}
         done
     done
 

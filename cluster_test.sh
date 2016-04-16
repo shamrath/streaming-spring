@@ -376,15 +376,6 @@ start(){
 
 ctrl_c (){
     echo "Exit from testing"
-    check_zk_cluster
-    if [ $? -eq 0 ] ; then
-        echo -n "Do you want to shutdown zk cluster [y or n]? "
-        read yorn
-        if [[ ${yorn} == y ]] ; then
-            stop_zk_cluster
-        fi
-    fi
-
     check_kafka_cluster
     if [ $? -eq 0 ] ; then
         echo -n "Do you want to shutdown Kafka cluster [y or n]? "
@@ -393,7 +384,14 @@ ctrl_c (){
             stop_kafka_cluster
         fi
     fi
-
+    check_zk_cluster
+    if [ $? -eq 0 ] ; then
+        echo -n "Do you want to shutdown zk cluster [y or n]? "
+        read yorn
+        if [[ ${yorn} == y ]] ; then
+            stop_zk_cluster
+        fi
+    fi
     echo "Bye,  see you later"
     exit 0
 }

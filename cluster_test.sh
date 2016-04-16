@@ -292,7 +292,7 @@ create_kafka_topic() {
 
 #args 1 data input file, 2 num of messages
 kafka_test(){
-    if [ $# -lt 3 ] ; then
+    if [ $# -lt 2 ] ; then
         echo "kafka test rquire data file name and test message count"
         echo "Stop Test"
         return 0

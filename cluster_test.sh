@@ -14,7 +14,7 @@ kafkaClusterStart=1
 _continue=0
 
 SCRHOME=$PWD
-USERHOME=`cd ~ && pwd`
+USERHOME=$HOME
 KAFKA_CLUSTER_HOME="$USERHOME/workspace/kafka-cluster"
 ZK_CLUSTER_HOME="$USERHOME/workspace/zookeeper-cluster"
 
@@ -186,10 +186,10 @@ check_kafka_cluster(){
     fi
     stat=`ssh ${hosts[2]} "ps ax | grep kafka | grep -v grep"`
     if [[ $stat == *kafka* ]] ; then
-        echo -n "${hosts[2]} is running, "
+        echo "${hosts[2]} is running, "
         clusterStatus=0
     else
-        echo -n "${hosts[2]} is not running, "
+        echo "${hosts[2]} is not running, "
     fi
     sleep 2
     return $clusterStatus
@@ -260,6 +260,7 @@ start_rabbitmq_cluster(){
 
 # build the project
 #run consumers
+# args: 1 outputFile , 2... commands to consumer
 start_consumer() {
     output=$1
     shift
@@ -267,27 +268,36 @@ start_consumer() {
 }
 
 #run producer
+# args: 1... commands to producer
 start_producer() {
     ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@"
 }
 
+# args: 1 replication factor
 create_kafka_topic() {
     if [ $# -lt 1 ] ; then
         echo "Replicatoin Factor is required, but not provided"
         return 1
     fi
 
-    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --delete --topic test
     sleep 2
-    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         -create --topic test --partitions 3 --replication-factor $1
     sleep
-    $KAFKA_1_HOME/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --describe --topic test
 }
 
+#args 1 data input file, 2 num of messages
 kafka_test(){
+    if [ $# -lt 3 ] ; then
+        echo "kafka test rquire data file name and test message count"
+        echo "Stop Test"
+        return 0
+    fi
+
    check_zk_cluster
    if [ $? -ne 0 ] ; then
         start_zk_cluster
@@ -306,30 +316,44 @@ kafka_test(){
         fi
    fi
 
-    # create kafka topic
-    create_kafka_topic 1
-    if [ $? -ne 0 ] ; then
-        echo "Kafka topic creation failed"
-        return 1
-    fi
+   readarray inputs < $1
 
-   if [ -f $USERHOME/testdata/sample.out ] ; then
-        rm $USERHOME/testdata/sample.out
-   fi
+    for i in "${inputs[@]}"
+    do
+        for j in 1 2 ; do
 
-   start_consumer $USERHOME/testdata/sample.out -kc -n 3 &
-   cPID=$!
-   start_producer -kp -d $SCRHOME/data/8k.txt -n 1000
+        # create kafka topic
+        create_kafka_topic ${j}
+        if [ $? -ne 0 ] ; then
+            echo "Kafka topic creation failed"
+            return 1
+        fi
 
-   kill $cPID
+        if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
+            rm $USERHOME/testdata/${i}_rep${j}.out
+        fi
+        start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
+        cPID=$!
+        start_producer -kp -d $SCRHOME/data/${i}.txt -n $2
+        kill ${cPID}
+
+        done
+    done
+
    echo "Kafka test finished"
+   echo -n "Do you need to shutdown kafka and zookeeper clusters [y or n]? "
+   read yorn
+   if [[ ${yorn} == y ]] ; then
+        stop_kafka_cluster
+        stop_zk_cluster
+   fi
    return 0
 
 }
 
 # start testing
 start(){
-    while [ $_continue -eq 0 ]
+    while [ ${_continue} -eq 0 ]
     do
         echo "--------------------------------------------------------------------"
         echo -e -n "Command to execute : "
@@ -341,8 +365,8 @@ start(){
             "kk") start_kafka_cluster ;;
             "skk" ) stop_kafka_cluster;;
             "ckk" ) check_kafka_cluster;;
-            "kt" ) kafka_test;;
-            "help") print_help $opt;;
+            "kt" ) kafka_test ${opt};;
+            "help") print_help ${opt};;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"
         esac
@@ -356,7 +380,7 @@ ctrl_c (){
     if [ $? -eq 0 ] ; then
         echo -n "Do you want to shutdown zk cluster [y or n]? "
         read yorn
-        if [[ $yorn == y ]] ; then
+        if [[ ${yorn} == y ]] ; then
             stop_zk_cluster
         fi
     fi
@@ -365,7 +389,7 @@ ctrl_c (){
     if [ $? -eq 0 ] ; then
         echo -n "Do you want to shutdown Kafka cluster [y or n]? "
         read yorn
-        if [[ $yorn == y ]] ; then
+        if [[ ${yorn} == y ]] ; then
             stop_kafka_cluster
         fi
     fi

@@ -213,6 +213,7 @@ stop_kafka_cluster() {
     ssh ${hosts[2]} "$KAFKA_3_HOME/bin/kafka-server-stop.sh"
     sleep 2
     echo ""
+    check_kafka_cluster
     return 0
 }
 
@@ -240,6 +241,7 @@ start_kafka_cluster() {
     ssh ${hosts[2]} "$KAFKA_3_HOME/bin/kafka-server-start.sh -daemon $KAFKA_3_HOME/config/server.properties"
     sleep 2
     echo ""
+    check_kafka_cluster
     return 0
 }
 

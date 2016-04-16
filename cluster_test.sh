@@ -282,7 +282,7 @@ create_kafka_topic() {
 
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --delete --topic test
-    sleep 2
+    sleep 5
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         -create --topic test --partitions 3 --replication-factor $1
     sleep
@@ -329,12 +329,12 @@ kafka_test(){
             return 1
         fi
 
-        if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
-            rm $USERHOME/testdata/${i}_rep${j}.out
+        if [ -f "$USERHOME/testdata/${i}_rep${j}.out" ] ; then
+            rm "$USERHOME/testdata/${i}_rep${j}.out"
         fi
-        start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
+        start_consumer "$USERHOME/testdata/${i}_rep${j}.out" -kc -n 3 &
         cPID=$!
-        start_producer -kp -d $SCRHOME/data/${i}.txt -n $2
+        start_producer -kp -d "$SCRHOME/data/${i}.txt" -n $2
         kill ${cPID}
 
         done

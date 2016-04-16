@@ -35,6 +35,13 @@ hosts[4]=j-082
 hosts[5]=j-083
 hosts[6]=j-084
 
+RED=`tput setaf 1`
+GREEN=`tput setaf 2`
+YELLOW=`tput setaf 3`
+BLUE=`tput setaf 4`
+PURPLE=`tput setaf 5`
+RESET=`tput sgr0`
+
 # read inputs
 
 #pass user inputs
@@ -97,24 +104,24 @@ check_zk_cluster() {
     echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
     stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${hosts[3]} is running, "
+        echo -n "${GREEN}${hosts[3]} is running${RESET}, "
         clusterStatus=0
     else
-        echo -n "${hosts[3]} is not running, "
+        echo -n "${RED}${hosts[3]} is not running${RESET}, "
     fi
     stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${hosts[4]} is running, "
+        echo -n "${GREEN}${hosts[4]} is running${RESET}, "
         clusterStatus=0
     else
-        echo -n "${hosts[4]} is not running, "
+        echo -n "${RED}${hosts[4]} is not running${RESET}, "
     fi
     stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
     if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo "${hosts[5]} is running"
+        echo "${GREEN}${hosts[5]} is running${RESET}"
         clusterStatus=0
     else
-        echo "${hosts[5]} is not running"
+        echo "${RED}${hosts[5]} is not running${RESET}"
     fi
     sleep 2
     return $clusterStatus

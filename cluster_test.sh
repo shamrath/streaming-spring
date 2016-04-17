@@ -292,18 +292,19 @@ start_producer() {
 # args: 1 replication factor
 create_kafka_topic() {
     if [ $# -lt 1 ] ; then
-        echo "${YELLOW}Replicatoin Factor is required, but not provided${RESET}"
+        echo "${RED}Replicatoin Factor is required, but not provided${RESET}"
         return 1
     fi
-
+    ${YELLOW}
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --delete --topic test
     sleep 5
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         -create --topic test --partitions 3 --replication-factor $1
-    sleep
+    sleep 2
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --describe --topic test
+    ${RESET}
 }
 
 #Reset zk and kafka data
@@ -349,7 +350,7 @@ kafka_test(){
         fi
    fi
 
-   readarray -t inputs < $1
+   readarray -t inputs < inputs.txt
 
     for i in "${inputs[@]}"
     do
@@ -367,7 +368,7 @@ kafka_test(){
             fi
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
-            start_producer -kp -d $SCRHOME/data/${i}.txt -n $2
+            start_producer -kp -d $SCRHOME/data/${i}.txt -n $1
             stop_consumer
             kill ${cPID}
         done

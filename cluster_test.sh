@@ -16,7 +16,9 @@ _continue=0
 SCRHOME=$PWD
 USERHOME=$HOME
 KAFKA_CLUSTER_HOME="$USERHOME/workspace/kafka-cluster"
+KAFKA_DATA_LOCATION="/scratch/shameera/kafka-logs"
 ZK_CLUSTER_HOME="$USERHOME/workspace/zookeeper-cluster"
+ZK_DATA_LOCATION="/scratch/shameera/zookeeper/data/version-2"
 
 ZK_1_HOME="$ZK_CLUSTER_HOME/1_zookeeper-3.4.6"
 ZK_2_HOME="$ZK_CLUSTER_HOME/2_zookeeper-3.4.6"
@@ -93,7 +95,8 @@ print_help(){
      esac
 
      echo "**************Main Commands*************"
-     echo "[kafkaTest] start kafka test"
+     echo "[kt] start kafka test"
+     echo "[resetdata] clear all zk and kafka data "
      echo "[help]   print this help menu"
      echo "[exit]   exit test"
 }
@@ -276,6 +279,10 @@ start_consumer() {
     ssh ${hosts[6]} "java -jar $SCRHOME/target/stream-performance-1.0-jar-with-dependencies.jar $@" > $output
 }
 
+stop_consumer() {
+   ssh ${hosts[6]} "ps ax | grep -i 'stream-performance-' | grep java | grep -v grep | awk '{print $1}' | xargs kill -SIGTERM"
+}
+
 #run producer
 # args: 1... commands to producer
 start_producer() {
@@ -297,6 +304,22 @@ create_kafka_topic() {
     sleep
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --describe --topic test
+}
+
+#Reset zk and kafka data
+reset_zk_kafka_data() {
+    check_zk_cluster
+    if [ $? -eq 0 ] ; then
+        echo "${RED}Can't clean data while clusters are running${RESET}"
+        return 1
+    fi
+    ssh ${hosts[0]} "rm -rf $KAFKA_DATA_LOCATION"
+    ssh ${hosts[1]} "rm -rf $KAFKA_DATA_LOCATION"
+    ssh ${hosts[2]} "rm -rf $KAFKA_DATA_LOCATION"
+
+    ssh ${hosts[3]} "rm -rf $ZK_DATA_LOCATION"
+    ssh ${hosts[4]} "rm -rf $ZK_DATA_LOCATION"
+    ssh ${hosts[5]} "rm -rf $ZK_DATA_LOCATION"
 }
 
 #args 1 data input file, 2 num of messages
@@ -345,6 +368,7 @@ kafka_test(){
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
             start_producer -kp -d $SCRHOME/data/${i}.txt -n $2
+            stop_consumer
             kill ${cPID}
         done
     done
@@ -375,6 +399,7 @@ start(){
             "skk" ) stop_kafka_cluster;;
             "ckk" ) check_kafka_cluster;;
             "kt" ) kafka_test ${opt};;
+            "resetdata" ) reset_zk_kafka_data;;
             "help") print_help ${opt};;
             "exit") _continue=1;; # end  the loop
             *) echo "$val is not yet supported"

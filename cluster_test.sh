@@ -131,7 +131,7 @@ check_zk_cluster() {
 stop_zk_cluster() {
    check_zk_cluster
    if [ $? -ne 0 ] ; then
-      echo "Zookeeper cluster already in down state"
+      echo "${YELLOW}Zookeeper cluster already in down state${RESET}"
       return 0
    fi
 
@@ -179,24 +179,24 @@ check_kafka_cluster(){
     echo "----------------------------Checking Kafka Cluster Status----------------------------------------"
     stat=`ssh ${hosts[0]} "ps ax | grep kafka | grep -v grep"`
     if [[ $stat == *kafka* ]] ; then
-        echo -n "${hosts[0]} is running, "
+        echo -n "${GREEN}${hosts[0]} is running${RESET}, "
         clusterStatus=0
     else
-        echo -n "${hosts[0]} is not running, "
+        echo -n "${RED}${hosts[0]} is not running${RESET}, "
     fi
     stat=`ssh ${hosts[1]} "ps ax | grep kafka | grep -v grep"`
     if [[ $stat == *kafka* ]] ; then
-        echo -n "${hosts[1]} is running, "
+        echo -n "${GREEN}${hosts[1]} is running${RESET}, "
         clusterStatus=0
     else
-        echo -n "${hosts[1]} is not running, "
+        echo -n "${RED}${hosts[1]} is not running${RESET}, "
     fi
     stat=`ssh ${hosts[2]} "ps ax | grep kafka | grep -v grep"`
     if [[ $stat == *kafka* ]] ; then
-        echo "${hosts[2]} is running, "
+        echo "${GREEN}${hosts[2]} is running${RESET}, "
         clusterStatus=0
     else
-        echo "${hosts[2]} is not running, "
+        echo "${RED}${hosts[2]} is not running${RESET}"
     fi
     sleep 2
     return $clusterStatus
@@ -285,7 +285,7 @@ start_producer() {
 # args: 1 replication factor
 create_kafka_topic() {
     if [ $# -lt 1 ] ; then
-        echo "Replicatoin Factor is required, but not provided"
+        echo "${YELLOW}Replicatoin Factor is required, but not provided${RESET}"
         return 1
     fi
 
@@ -302,7 +302,7 @@ create_kafka_topic() {
 #args 1 data input file, 2 num of messages
 kafka_test(){
     if [ $# -lt 2 ] ; then
-        echo "kafka test rquire data file name and test message count"
+        echo "kafka test require data file name and test message count"
         echo "Stop Test"
         return 0
     fi
@@ -312,7 +312,7 @@ kafka_test(){
    if [ $? -ne 0 ] ; then
         start_zk_cluster
         if [ $? -ne 0 ] ; then
-            echo "Test failed ... Couldn't start Zookeeper cluster"
+            echo "${RED}Test failed ... Couldn't start Zookeeper cluster${RESET}"
             return 1
         fi
    fi
@@ -321,7 +321,7 @@ kafka_test(){
    if [ $? -ne 0 ] ; then
         start_kafka_cluster
         if [ $? -ne 0 ] ; then
-            echo "Test failed ... Couldn't start Kafka cluster"
+            echo "${RED}Test failed ... Couldn't start Kafka cluster${RESET}"
             return 1
         fi
    fi
@@ -335,7 +335,7 @@ kafka_test(){
             # create kafka topic
             create_kafka_topic ${j}
             if [ $? -ne 0 ] ; then
-                echo "Kafka topic creation failed"
+                echo "${RED}Kafka topic creation failed${RESET}"
                 return 1
             fi
 

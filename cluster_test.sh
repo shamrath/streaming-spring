@@ -295,7 +295,7 @@ create_kafka_topic() {
         echo "${RED}Replicatoin Factor is required, but not provided${RESET}"
         return 1
     fi
-    ${YELLOW}
+    tput setaf 3
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --delete --topic test
     sleep 5
@@ -304,7 +304,7 @@ create_kafka_topic() {
     sleep 2
     ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
         --describe --topic test
-    ${RESET}
+    tput sgr0
 }
 
 #Reset zk and kafka data
@@ -325,7 +325,7 @@ reset_zk_kafka_data() {
 
 #args 1 data input file, 2 num of messages
 kafka_test(){
-    if [ $# -lt 2 ] ; then
+    if [ $# -lt 1 ] ; then
         echo "kafka test require data file name and test message count"
         echo "Stop Test"
         return 0

@@ -366,6 +366,7 @@ kafka_test(){
             if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
                 rm $USERHOME/testdata/${i}_rep${j}.out
             fi
+            echo "${BLUE} run test with output file $USERHOME/testdata/${i}_rep${j}.out ${RESET}"
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
             start_producer -kp -d $SCRHOME/data/${i}.txt -n $1

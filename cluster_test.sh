@@ -369,7 +369,9 @@ kafka_test(){
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
             start_producer -kp -d $SCRHOME/data/${i}.txt -n $1
+            sleep 10
             stop_consumer
+            sleep 2
             kill ${cPID}
         done
     done

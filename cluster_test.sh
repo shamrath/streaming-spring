@@ -326,7 +326,7 @@ kafka_test(){
         fi
    fi
 
-   readarray inputs < $1
+   readarray -t inputs < $1
 
     for i in "${inputs[@]}"
     do

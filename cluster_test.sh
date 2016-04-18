@@ -260,7 +260,7 @@ stop_rabbitmq_cluster() {
     echo "------------------Stopping RabbitMQ cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}-------------------"
     for i in 0 1 2
     do
-        ssh "$hosts[${i}]}" "sudo service rabbitmq-server stop"
+        ssh "${hosts[${i}]}" "sudo service rabbitmq-server stop"
         sleep 2
     done
     return 0

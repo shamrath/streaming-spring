@@ -249,6 +249,7 @@ check_rabbitmq_cluster(){
             echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
         fi
     done
+    ssh "${hosts[0]}" "sudo rabbitmqctl cluster_status"
     echo ""
     sleep 2
     return $clusterStatus
@@ -256,11 +257,23 @@ check_rabbitmq_cluster(){
 
 #stop rabbitmq cluster
 stop_rabbitmq_cluster() {
+    echo "------------------Stopping RabbitMQ cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}-------------------"
+    for i in 0 1 2
+    do
+        ssh "$hosts[${i}]}" "sudo service rabbitmq-server stop"
+        sleep 2
+    done
     return 0
 }
 
 #start rabbitmqCluster
 start_rabbitmq_cluster(){
+    echo "------------------Starting RabbitMQ cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}-------------------"
+    for i in 0 1 2
+    do
+        ssh "$hosts[${i}]}" "sudo service rabbitmq-server start"
+        sleep 2
+    done
     return 0
 }
 
@@ -397,6 +410,9 @@ start(){
             "skk" ) stop_kafka_cluster;;
             "ckk" ) check_kafka_cluster;;
             "kt" ) kafka_test ${opt};;
+            "rr" ) start_rabbitmq_cluster;;
+            "crr" ) check_rabbitmq_cluster;;
+            "srr" ) stop_rabbitmq_cluster;;
             "resetdata" ) reset_zk_kafka_data;;
             "help") print_help ${opt};;
             "exit") _continue=1;; # end  the loop

@@ -249,7 +249,9 @@ check_rabbitmq_cluster(){
             echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
         fi
     done
-    ssh "${hosts[0]}" "sudo rabbitmqctl cluster_status"
+    if [ $clusterStatus -ne 3 ] ; then
+        ssh "${hosts[0]}" "sudo rabbitmqctl cluster_status"
+    fi
     echo ""
     sleep 2
     return $clusterStatus

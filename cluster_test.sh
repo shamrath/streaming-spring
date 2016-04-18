@@ -397,6 +397,68 @@ kafka_test(){
 
 }
 
+create_rabbitmq_vhost() {
+    if [ $# -lt 1 ] ; then
+        echo "${RED}HA is required, but not provided${RESET}"
+        return 1
+    fi
+    tput setaf 3
+    ssh "${hosts[0]}" "sudo rabbitmqctl delete_vhost perf"
+    sleep 2
+    ssh "${hosts[0]}" "sudo rabbitmqctl add_vhost perf"
+    ssh "${hosts[0]}" "sudo rabbitmqctl set_permissions -p perf rabbit \".*\" \".*\" \".*\""
+
+    if [ $1 -eq 2 ] ; then
+        echo "set ha to 2"
+        ssh "${hosts[0]}" "sudo rabbitmqctl set_policy -p perf ha-two \"^consumer\" '{\"ha-mode\":\"exactly\",\"ha-params\":2,\"ha-sync-mode\":\"automatic\"}'"
+    fi
+    tput sgr0
+}
+
+rabbitmq_test() {
+    echo "${GREEN}Starting RabbitMQ test with args $1 ${RESET}"
+    if [ $# -lt 1 ] ; then
+        echo "Rabbitmq test require message count"
+        echo "Stopped Rabbitmq test, invalid argument count"
+        return 1
+    fi
+    check_rabbitmq_cluster
+    if [ $? -ne 0 ] ; then
+        start_rabbitmq_cluster
+        if [ $? -ne 0 ] ; then
+            echo "${RED}Test failed ... Couldn't start Rabbitmq cluster${RESET}"
+            return 1
+        fi
+   fi
+
+   readarray -t inputs < inputs.txt
+
+    for i in "${inputs[@]}"
+    do
+        for j in 1 2
+        do
+            # create rabbitmq vhost
+            create_rabbitmq_vhost ${j}
+            if [ $? -ne 0 ] ; then
+                echo "${RED}Rabbitmq vhost creation failed${RESET}"
+                return 1
+            fi
+
+            if [ -f $USERHOME/testdata/rabbitmq_${i}_rep${j}.out ] ; then
+                rm $USERHOME/testdata/rabbitmq_${i}_rep${j}.out
+            fi
+            echo "${BLUE} run test with output file $USERHOME/testdata/rabbitmq_${i}_rep${j}.out ${RESET}"
+            start_consumer $USERHOME/testdata/rabbitmq_${i}_rep${j}.out -rc -n 3 &
+            cPID=$!
+            start_producer -rp -d $SCRHOME/data/${i}.txt -n $1
+            sleep 10
+            stop_consumer
+            sleep 2
+            kill ${cPID}
+        done
+    done
+}
+
 # start testing
 start(){
     while [ ${_continue} -eq 0 ]
@@ -415,6 +477,7 @@ start(){
             "rr" ) start_rabbitmq_cluster;;
             "crr" ) check_rabbitmq_cluster;;
             "srr" ) stop_rabbitmq_cluster;;
+            "rt" ) rabbitmq_test ${opt};;
             "resetdata" ) reset_zk_kafka_data;;
             "help") print_help ${opt};;
             "exit") _continue=1;; # end  the loop

@@ -378,7 +378,12 @@ kafka_test(){
             echo "${BLUE} run test with output file $USERHOME/testdata/${i}_rep${j}.out ${RESET}"
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
-            start_producer -kp -d $SCRHOME/data/${i}.txt -n $1
+            if [[ $2 == -b ]]; then
+                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1 > $USERHOME/progress.out
+                echo "Output redirected to $USERHOME/progress.out"
+            else
+                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1
+            fi
             sleep 10
             stop_consumer
             sleep 2
@@ -489,6 +494,8 @@ start(){
 
 ctrl_c (){
     echo "Exit from testing"
+    stop_consumer
+    stop_consumer
     check_kafka_cluster
 #    if [ $? -ne 3 ] ; then
 #        echo -n "Do you want to shutdown Kafka cluster [y or n]? "

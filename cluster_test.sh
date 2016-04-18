@@ -309,13 +309,13 @@ create_kafka_topic() {
     tput setaf 3
     if [[ $2 == -b ]] ; then
         ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-            --delete --topic test > ${OUTPUT_FILE}
+            --delete --topic test >> ${OUTPUT_FILE}
         sleep 5
         ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-            -create --topic test --partitions 3 --replication-factor $1 > ${OUTPUT_FILE}
+            -create --topic test --partitions 3 --replication-factor $1 >> ${OUTPUT_FILE}
         sleep 2
         ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-            --describe --topic test > ${OUTPUT_FILE}
+            --describe --topic test >> ${OUTPUT_FILE}
     else
         ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
             --delete --topic test
@@ -391,7 +391,7 @@ kafka_test(){
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
             if [[ $2 == -b ]]; then
-                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1 > ${OUTPUT_FILE}
+                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1 >> ${OUTPUT_FILE}
                 echo "Output redirected to ${OUTPUT_FILE}"
             else
                 start_producer -kp -d $SCRHOME/data/${i}.txt -n $1

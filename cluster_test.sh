@@ -19,6 +19,7 @@ KAFKA_CLUSTER_HOME="$USERHOME/workspace/kafka-cluster"
 KAFKA_DATA_LOCATION="/scratch/shameera/kafka-logs"
 ZK_CLUSTER_HOME="$USERHOME/workspace/zookeeper-cluster"
 ZK_DATA_LOCATION="/scratch/shameera/zookeeper/data/version-2"
+OUTPUT_FILE="${USERHOME}/progress.out"
 
 ZK_1_HOME="$ZK_CLUSTER_HOME/1_zookeeper-3.4.6"
 ZK_2_HOME="$ZK_CLUSTER_HOME/2_zookeeper-3.4.6"
@@ -304,15 +305,27 @@ create_kafka_topic() {
         echo "${RED}Replicatoin Factor is required, but not provided${RESET}"
         return 1
     fi
+
     tput setaf 3
-    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-        --delete --topic test
-    sleep 5
-    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-        -create --topic test --partitions 3 --replication-factor $1
-    sleep 2
-    ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
-        --describe --topic test
+    if [[ $2 == -b ]] ; then
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            --delete --topic test > ${OUTPUT_FILE}
+        sleep 5
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            -create --topic test --partitions 3 --replication-factor $1 > ${OUTPUT_FILE}
+        sleep 2
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            --describe --topic test > ${OUTPUT_FILE}
+    else
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            --delete --topic test
+        sleep 5
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            -create --topic test --partitions 3 --replication-factor $1
+        sleep 2
+        ${KAFKA_1_HOME}/bin/kafka-topics.sh --zookeeper ${hosts[3]}:2181,${hosts[4]}:2181,${hosts[5]}:2181 \
+            --describe --topic test
+    fi
     tput sgr0
 }
 
@@ -366,12 +379,11 @@ kafka_test(){
         for j in 1 2
         do
             # create kafka topic
-            create_kafka_topic ${j}
+            create_kafka_topic ${j} $2
             if [ $? -ne 0 ] ; then
                 echo "${RED}Kafka topic creation failed${RESET}"
                 return 1
             fi
-
             if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
                 rm $USERHOME/testdata/${i}_rep${j}.out
             fi
@@ -379,8 +391,8 @@ kafka_test(){
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             cPID=$!
             if [[ $2 == -b ]]; then
-                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1 > $USERHOME/progress.out
-                echo "Output redirected to $USERHOME/progress.out"
+                start_producer -kp -d $SCRHOME/data/${i}.txt -n $1 > ${OUTPUT_FILE}
+                echo "Output redirected to ${OUTPUT_FILE}"
             else
                 start_producer -kp -d $SCRHOME/data/${i}.txt -n $1
             fi

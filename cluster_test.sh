@@ -271,7 +271,7 @@ start_rabbitmq_cluster(){
     echo "------------------Starting RabbitMQ cluster on ${hosts[0]} ,${hosts[1]},${hosts[2]}-------------------"
     for i in 0 1 2
     do
-        ssh "$hosts[${i}]}" "sudo service rabbitmq-server start"
+        ssh "${hosts[${i}]}" "sudo service rabbitmq-server start"
         sleep 2
     done
     return 0

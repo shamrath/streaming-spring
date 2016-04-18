@@ -123,13 +123,13 @@ check_zk_cluster() {
 # stop zk cluster
 stop_zk_cluster() {
    check_zk_cluster
-   if [ $? -ne 0 ] ; then
+   if [ $? -eq 3 ] ; then
       echo "${YELLOW}Zookeeper cluster already in down state${RESET}"
       return 0
    fi
 
    check_kafka_cluster
-   if [ $? -eq 0 ] ; then
+   if [ $? -ne 3 ] ; then
       echo "Please shutdown Kafka cluster first"
       return 1
    fi
@@ -150,7 +150,7 @@ stop_zk_cluster() {
 # start zk Cluster
 start_zk_cluster() {
     check_zk_cluster
-    if [ $? -eq 0 ] ; then
+    if [ $? -ne 3 ] ; then
         stop_zk_cluster
     fi
     echo "------------------Starting Zookeeper cluster on ${hosts[3]} ,${hosts[4]},${hosts[5]}------------------"
@@ -188,7 +188,7 @@ check_kafka_cluster(){
 #stop kafka cluster
 stop_kafka_cluster() {
     check_kafka_cluster
-    if [ $? -ne 0 ] ; then
+    if [ $? -eq 3 ] ; then
         echo "Kafka cluster already in down state"
          return 0
     fi
@@ -217,7 +217,7 @@ start_kafka_cluster() {
     fi
 
     check_kafka_cluster
-    if [ $? -eq 0 ] ; then
+    if [ $? -ne 3 ] ; then
         stop_kafka_cluster
     fi
 
@@ -308,13 +308,15 @@ reset_zk_kafka_data() {
         echo "${RED}Can't clean data while clusters are running${RESET}"
         return 1
     fi
-    ssh ${hosts[0]} "rm -rf $KAFKA_DATA_LOCATION"
-    ssh ${hosts[1]} "rm -rf $KAFKA_DATA_LOCATION"
-    ssh ${hosts[2]} "rm -rf $KAFKA_DATA_LOCATION"
+    for i in 0 1 2
+    do
+        ssh ${hosts[${i}]} "rm -rf $KAFKA_DATA_LOCATION"
+    done
 
-    ssh ${hosts[3]} "rm -rf $ZK_DATA_LOCATION"
-    ssh ${hosts[4]} "rm -rf $ZK_DATA_LOCATION"
-    ssh ${hosts[5]} "rm -rf $ZK_DATA_LOCATION"
+    for j in 3 4 5
+    do
+        ssh ${hosts[${j}]} "rm -rf $ZK_DATA_LOCATION"
+    done
 }
 
 #args 1 data input file, 2 num of messages
@@ -324,8 +326,6 @@ kafka_test(){
         echo "Stop Test"
         return 0
     fi
-    echo "data file $1 messages $2"
-
    check_zk_cluster
    if [ $? -ne 0 ] ; then
         start_zk_cluster
@@ -409,20 +409,22 @@ start(){
 ctrl_c (){
     echo "Exit from testing"
     check_kafka_cluster
-    if [ $? -eq 0 ] ; then
+    if [ $? -ne 3 ] ; then
         echo -n "Do you want to shutdown Kafka cluster [y or n]? "
         read yorn
         if [[ ${yorn} == y ]] ; then
             stop_kafka_cluster
         fi
+        echo ""
     fi
     check_zk_cluster
-    if [ $? -eq 0 ] ; then
+    if [ $? -ne 3 ] ; then
         echo -n "Do you want to shutdown zk cluster [y or n]? "
         read yorn
         if [[ ${yorn} == y ]] ; then
             stop_zk_cluster
         fi
+        echo ""
     fi
     echo "Bye,  see you later"
     exit 0

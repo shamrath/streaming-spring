@@ -103,29 +103,18 @@ print_help(){
 
 #check health of zk cluster
 check_zk_cluster() {
-    clusterStatus=1
+    clusterStatus=3
     echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
-    stat=`ssh ${hosts[3]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${GREEN}${hosts[3]} is running${RESET}, "
-        clusterStatus=0
-    else
-        echo -n "${RED}${hosts[3]} is not running${RESET}, "
-    fi
-    stat=`ssh ${hosts[4]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo -n "${GREEN}${hosts[4]} is running${RESET}, "
-        clusterStatus=0
-    else
-        echo -n "${RED}${hosts[4]} is not running${RESET}, "
-    fi
-    stat=`ssh ${hosts[5]} "ps ax | grep zookeeper | grep -v grep"`
-    if [[ $stat == *QuorumPeerMain* ]] ; then
-        echo "${GREEN}${hosts[5]} is running${RESET}"
-        clusterStatus=0
-    else
-        echo "${RED}${hosts[5]} is not running${RESET}"
-    fi
+    for i in 3 5 6
+    do
+        stat=`ssh ${hosts[${i}]} "ps ax | grep zookeeper | grep -v grep"`
+        if [[ $stat == *QuorumPeerMain* ]] ; then
+            echo -n "${GREEN}${hosts[${i}]} is running${RESET}, "
+            clusterStatus=$((clusterStatus-1))
+        else
+            echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
+        fi
+    done
     sleep 2
     return $clusterStatus
 }
@@ -178,29 +167,18 @@ start_zk_cluster() {
 
 #check health of kafka cluster
 check_kafka_cluster(){
-    clusterStatus=1
+    clusterStatus=3
     echo "----------------------------Checking Kafka Cluster Status----------------------------------------"
-    stat=`ssh ${hosts[0]} "ps ax | grep kafka | grep -v grep"`
-    if [[ $stat == *kafka* ]] ; then
-        echo -n "${GREEN}${hosts[0]} is running${RESET}, "
-        clusterStatus=0
-    else
-        echo -n "${RED}${hosts[0]} is not running${RESET}, "
-    fi
-    stat=`ssh ${hosts[1]} "ps ax | grep kafka | grep -v grep"`
-    if [[ $stat == *kafka* ]] ; then
-        echo -n "${GREEN}${hosts[1]} is running${RESET}, "
-        clusterStatus=0
-    else
-        echo -n "${RED}${hosts[1]} is not running${RESET}, "
-    fi
-    stat=`ssh ${hosts[2]} "ps ax | grep kafka | grep -v grep"`
-    if [[ $stat == *kafka* ]] ; then
-        echo "${GREEN}${hosts[2]} is running${RESET}, "
-        clusterStatus=0
-    else
-        echo "${RED}${hosts[2]} is not running${RESET}"
-    fi
+    for i in 0 1 2
+    do
+        stat=`ssh ${hosts[${i}]} "ps ax | grep kafka | grep -v grep"`
+        if [[ $stat == *kafka* ]] ; then
+            echo -n "${GREEN}${hosts[${i}]} is running${RESET}, "
+            clusterStatus=$((clusterStatus-1))
+        else
+            echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
+        fi
+    done
     sleep 2
     return $clusterStatus
 }
@@ -257,7 +235,20 @@ start_kafka_cluster() {
 
 #check health of rabbitmq cluster
 check_rabbitmq_cluster(){
-    return 0
+    clusterStatus=3
+    echo "----------------------------Checking Rabbitmq Cluster Status----------------------------------------"
+    for i in 0 1 2
+    do
+        stat=`ssh ${hosts[${i}]} "ps ax | grep rabbitmq | grep -v grep"`
+        if [[ $stat == *rabbitmq* ]] ; then
+            echo -n "${GREEN}${hosts[${i}]} is running${RESET}, "
+            clusterStatus=$((clusterStatus-1))
+        else
+            echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
+        fi
+    done
+    sleep 2
+    return $clusterStatus
 }
 
 #stop rabbitmq cluster

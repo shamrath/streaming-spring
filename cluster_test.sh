@@ -506,7 +506,7 @@ start(){
 
 ctrl_c (){
     echo "Exit from testing"
-    echo -n "Do you want to shutdown Kafka cluster [y or n]? "
+    echo -n "Do you want to shutdown consumer and producer client processes [y or n]? "
     read yorn
     if [[ $yorn == y ]]; then
         stop_consumer

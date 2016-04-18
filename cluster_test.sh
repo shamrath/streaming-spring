@@ -425,23 +425,25 @@ start(){
 ctrl_c (){
     echo "Exit from testing"
     check_kafka_cluster
-    if [ $? -ne 3 ] ; then
-        echo -n "Do you want to shutdown Kafka cluster [y or n]? "
-        read yorn
-        if [[ ${yorn} == y ]] ; then
-            stop_kafka_cluster
-        fi
-        echo ""
-    fi
+#    if [ $? -ne 3 ] ; then
+#        echo -n "Do you want to shutdown Kafka cluster [y or n]? "
+#        read yorn
+#        if [[ ${yorn} == y ]] ; then
+#            stop_kafka_cluster
+#        fi
+#        echo ""
+#    fi
     check_zk_cluster
-    if [ $? -ne 3 ] ; then
-        echo -n "Do you want to shutdown zk cluster [y or n]? "
-        read yorn
-        if [[ ${yorn} == y ]] ; then
-            stop_zk_cluster
-        fi
-        echo ""
-    fi
+#    if [ $? -ne 3 ] ; then
+#        echo -n "Do you want to shutdown zk cluster [y or n]? "
+#        read yorn
+#        if [[ ${yorn} == y ]] ; then
+#            stop_zk_cluster
+#        fi
+#        echo ""
+#    fi
+    check_rabbitmq_cluster
+
     echo "Bye,  see you later"
     exit 0
 }

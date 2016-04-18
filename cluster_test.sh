@@ -105,7 +105,7 @@ print_help(){
 check_zk_cluster() {
     clusterStatus=3
     echo "----------------------------Checking Zookeeper Cluster Status----------------------------------------"
-    for i in 3 5 6
+    for i in 3 4 5
     do
         stat=`ssh ${hosts[${i}]} "ps ax | grep zookeeper | grep -v grep"`
         if [[ $stat == *QuorumPeerMain* ]] ; then

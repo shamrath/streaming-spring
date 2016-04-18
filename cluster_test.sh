@@ -115,6 +115,7 @@ check_zk_cluster() {
             echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
         fi
     done
+    echo ""
     sleep 2
     return $clusterStatus
 }
@@ -179,6 +180,7 @@ check_kafka_cluster(){
             echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
         fi
     done
+    echo ""
     sleep 2
     return $clusterStatus
 }
@@ -247,6 +249,7 @@ check_rabbitmq_cluster(){
             echo -n "${RED}${hosts[${i}]} is not running${RESET}, "
         fi
     done
+    echo ""
     sleep 2
     return $clusterStatus
 }

@@ -264,6 +264,7 @@ stop_rabbitmq_cluster() {
     for i in 0 1 2
     do
         ssh "${hosts[${i}]}" "sudo service rabbitmq-server stop"
+        echo "exit code $?"
         sleep 2
     done
     return 0
@@ -440,14 +441,19 @@ rabbitmq_test() {
         return 1
     fi
     check_rabbitmq_cluster
-    if [ $? -ne 0 ] ; then
-        start_rabbitmq_cluster
-        if [ $? -ne 0 ] ; then
-            echo "${RED}Test failed ... Couldn't start Rabbitmq cluster${RESET}"
-            return 1
-        fi
-   fi
-
+#    if [ $? -ne 0 ] ; then
+#        start_rabbitmq_cluster
+#        if [ $? -ne 0 ] ; then
+#            echo "${RED}Test failed ... Couldn't start Rabbitmq cluster${RESET}"
+#            return 1
+#        fi
+#   fi
+    echo -n "Is Rabbitmq cluster running ok [y or n]? "
+    read val
+    if [[ $val == n ]] ; then
+       echo "${YELLOW}Please start rabbitmq cluster and try${RESET}"
+       return 0
+    fi
    readarray -t inputs < inputs.txt
 
     for i in "${inputs[@]}"
@@ -491,7 +497,7 @@ start(){
             "skk" ) stop_kafka_cluster;;
             "ckk" ) check_kafka_cluster;;
             "kt" ) kafka_test ${opt};;
-            "rr" ) start_rabbitmq_cluster;;
+            "rr" ) echo "This command has been removed temporary.Please manual run the rabbitmq cluster";;
             "crr" ) check_rabbitmq_cluster;;
             "srr" ) stop_rabbitmq_cluster;;
             "rt" ) rabbitmq_test ${opt};;

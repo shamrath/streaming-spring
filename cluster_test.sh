@@ -388,6 +388,7 @@ kafka_test(){
             if [ -f $USERHOME/testdata/${i}_rep${j}.out ] ; then
                 rm $USERHOME/testdata/${i}_rep${j}.out
             fi
+            sleep 60
             echo "${BLUE} run test with output file $USERHOME/testdata/${i}_rep${j}.out ${RESET}"
             start_consumer $USERHOME/testdata/${i}_rep${j}.out -kc -n 3 &
             sleep 5
@@ -400,8 +401,8 @@ kafka_test(){
             fi
             sleep 10
             stop_consumer
-            sleep 2
             kill ${cPID}
+            sleep 2
         done
     done
 
@@ -471,6 +472,7 @@ rabbitmq_test() {
             if [ -f $USERHOME/testdata/rabbitmq_${i}_rep${j}.out ] ; then
                 rm $USERHOME/testdata/rabbitmq_${i}_rep${j}.out
             fi
+            sleep 60
             echo "${BLUE} run test with output file $USERHOME/testdata/rabbitmq_${i}_rep${j}.out ${RESET}"
             start_consumer $USERHOME/testdata/rabbitmq_${i}_rep${j}.out -rc -n 3 &
             cPID=$!
@@ -478,8 +480,8 @@ rabbitmq_test() {
             start_producer -rp -d $SCRHOME/data/${i}.txt -n $1
             sleep 10
             stop_consumer
-            sleep 2
             kill ${cPID}
+            sleep 2
         done
     done
 }

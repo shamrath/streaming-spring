@@ -34,18 +34,18 @@ find_value() {
 }
 
 start(){
-    array=($(ls $1))
+    array=($(ls *.out))
     for  i in "${array[@]}"
     do
         find_value ${i}
     done
 }
 
-if [ $# -lt 1 ] ; then
-    echo "Required file pattern"
-    return 1
-else
+#if [ $# -lt 1 ] ; then
+#    echo "Required file pattern"
+#    return 1
+#else
     output=results.txt
     rm ${output}
     start $@
-fi
+#fi

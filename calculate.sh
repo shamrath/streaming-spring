@@ -3,7 +3,6 @@ calc () {
         avg=`awk "BEGIN { print "$*" }"`
 }
 
-output=results.txt
 
 find_value() {
     grep "Offset:" $1 > test.out
@@ -33,6 +32,19 @@ find_value() {
     echo "Sum : $sum, Avg (sum/val) $sum/$val  = $avg" >> ${output}
 }
 
+start(){
+    array=($(ls $1))
+    for  i in "${array[@]}"
+    do
+        find_value ${i}
+    done
+}
 
-
-find_value $@
+if [ $# -lt 1 ] ; then
+    echo "Required file pattern"
+    return 1
+else
+    output=results.txt
+    rm ${output}
+    start $@
+fi

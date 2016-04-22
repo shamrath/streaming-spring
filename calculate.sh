@@ -5,6 +5,7 @@ calc () {
 
 
 find_value() {
+    echo "Processing file :$1"
     grep "Offset:" $1 > test.out
     sed -i -e 's/.* = //g' test.out
     sed -i -e 's/ ns//g' test.out

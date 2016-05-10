@@ -43,7 +43,7 @@ if [ $# -lt 1 ] ; then
     return 1
 else
     output=results.txt
-    statistics $output
-    #rm ${output}
-    #start $@
+    rm ${output}
+    #statistics $output
+    start $@
 fi

@@ -3,32 +3,31 @@ calc () {
         avg=`awk "BEGIN { print "$*" }"`
 }
 
+statistics () {
+    #echo "filename :- $1"
+    #awk '{sum+=$1; sumsq+=$1*$1;} END {print "stdev = " sqrt(sumsq/NR - (sum/NR)**2);}' $1
+    awk '{sum+=$1; sumsq+=$1*$1;} END {print "N = " NR; print "Median = "(sum/NR); print "variance = "sumsq/NR - (sum/NR)**2; print "stdev = " sqrt(sumsq/NR - (sum/NR)**2);}' $1 >> ${output}
+}
 # args : file_name , ignore count
 find_value() {
     echo "Processing file :$1"
     grep "Offset:" $1 > test.out
     sed -i -e 's/.* = //g' test.out
     sed -i -e 's/ ns//g' test.out
-
-    readarray -t data < test.out
-    count=${#data[@]}
-    echo "Ignore value -> ${2} ,line count -> ${count}"
-    echo -n "$1 : data count ${count}, " >> ${output}
-    sum=0
-    if [ ${count} -gt ${2} ] ;
+    initcount=`wc -l test.out`
+    if [ ${initcount} -gt ${2} ] ;
     then
-        for ((i=${2}; i < ${count}; i++))
-        do
-            ((sum += ${data[$i]}))
-        done
-        val=`expr ${count} - ${2}`
+        echo "Ignore value -> ${2} ,line count -> ${initcount}"
+        val=`expr ${initcount} - ${2}`
+        tail -n ${val} test.out > test2.out
+        readarray -t data < test2.out
+        count=${#data[@]}
+        echo -n "$1 : data count ${count}, " >> ${output}
+        statistics test2.out
     else
         echo "Ignore value -> ${2} is grater than line count -> ${count}"
         retun 1
     fi
-    echo -n "Val = ${val}, " >> ${output}
-    calc  ${sum}/${val}
-    echo "Sum : $sum, Avg (sum/val) $sum/$val  = $avg" >> ${output}
 }
 
 start(){
@@ -44,6 +43,7 @@ if [ $# -lt 1 ] ; then
     return 1
 else
     output=results.txt
-    rm ${output}
-    start $@
+    statistics $output
+    #rm ${output}
+    #start $@
 fi

@@ -15,6 +15,7 @@ find_value() {
     sed -i -e 's/.* = //g' test.out
     sed -i -e 's/ ns//g' test.out
     initcount=`wc -l test.out`
+    echo "tatoal count ${initcount}"
     if [ ${initcount} -gt ${2} ] ;
     then
         echo "Ignore value -> ${2} ,line count -> ${initcount}"
